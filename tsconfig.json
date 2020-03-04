@@ -1,11 +1,12 @@
 {
     "compilerOptions": {
         "target": "es5",
-        "lib": ["es2015", "es2017", "dom"]
+        "lib": ["es2015", "es2017", "dom"],
+        "outDir": "out",
+        "sourceMap": true
     },
     "files": [
         "PerudoGame.ts",
-        "Test.ts",
-        "test_1.ts"
+        "Test.ts"
     ]
 }
