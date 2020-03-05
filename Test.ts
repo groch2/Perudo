@@ -1,6 +1,10 @@
 import { PerudoGame } from "./PerudoGame";
 
-const nbPlayers = 6;
-const playersDices: number[] = Object.assign([], { length: nbPlayers }).fill(5);
+const nbPlayers = 3;
+const game = new PerudoGame.Game(nbPlayers);
 
-const game = new PerudoGame.Game(5);
+for (let turn = 0; turn < nbPlayers * 2; turn++) {
+    const bid = { diceFace: PerudoGame.DiceFace.Two, diceQuantity: 4 + turn };
+    game.currentRound.playerPlays(bid);
+    console.log(game.currentRound.lastTurn);
+}
