@@ -8,24 +8,24 @@ export namespace PerudoGame {
 	export abstract class Turn {
 		constructor(
 			readonly turn: number,
-			readonly player: number) { }
+			readonly playerId: number) { }
 	}
 
 	export class BeforeLastTurn extends Turn {
 		constructor(
 			turn: number,
-			player: number,
+			playerId: number,
 			readonly bid: PlayerDiceBid) {
-			super(turn, player);
+			super(turn, playerId);
 		}
 	}
 
 	export class LastTurn extends Turn {
 		constructor(
 			turn: number,
-			player: number,
+			playerId: number,
 			readonly bid: PlayerEndOfRoundCall) {
-			super(turn, player);
+			super(turn, playerId);
 		}
 	}
 
@@ -53,7 +53,7 @@ export namespace PerudoGame {
 		public get lastTurn() {
 			return (
 				this.isOver ?
-					this.lastTurn :
+					this.endTurn :
 					this.beforeEndTurns[this.beforeEndTurns.length - 1]);
 		}
 
@@ -68,6 +68,7 @@ export namespace PerudoGame {
 			}
 			return this._looserPlayer;
 		}
+
 		private _winnerPlayer: number;
 		public get winnerPlayer() {
 			if (!this.isOver) {
@@ -75,6 +76,7 @@ export namespace PerudoGame {
 			}
 			return this._winnerPlayer;
 		}
+
 		public EndRound(looserPlayer: number, winnerPlayer: number): void {
 			if (this.isOver) {
 				throw new Error("This round is already over");
@@ -84,26 +86,25 @@ export namespace PerudoGame {
 		}
 
 		public playerPlays(playerChoice: PlayerDiceBid | PlayerEndOfRoundCall): void {
-			console.log(playerChoice);
 			const isRoundBeginning = this._beforeEndTurns.length == 0;
 			const previousTurn: BeforeLastTurn | null = isRoundBeginning ? null : this._beforeEndTurns[this._beforeEndTurns.length - 1] as BeforeLastTurn;
 			if (isDiceBid(playerChoice)) {
 				this._beforeEndTurns.push(
 					new BeforeLastTurn(
 						isRoundBeginning ? 0 : previousTurn.turn + 1,
-						isRoundBeginning ? this.firstPlayer : (previousTurn.player + 1) % this._nbActivePlayers,
+						isRoundBeginning ? this.firstPlayer : (previousTurn.playerId + 1) % this._nbActivePlayers,
 						playerChoice));
 			}
 			else {
 				if (isRoundBeginning) {
 					throw Error("It is an error to end a round at the beginning of the round, before any bid was made.");
 				}
-				const previousBid = previousTurn.bid;
 				this._endTurn =
 					new LastTurn(
 						previousTurn.turn + 1,
-						(previousTurn.player + 1) % this._nbActivePlayers,
+						(previousTurn.playerId + 1) % this._nbActivePlayers,
 						playerChoice);
+				this._isOver = true;
 			}
 		};
 	}
