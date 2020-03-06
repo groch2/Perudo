@@ -34,13 +34,17 @@ export namespace PerudoGame {
 	}
 
 	export class Round {
+		readonly isFirstPlayerOfCurrentRoundPlafico: boolean;
+
 		constructor(
 			private _beforeEndTurns: BeforeLastTurn[],
 			private _endTurn: LastTurn,
 			private _isOver: boolean,
 			private _nbActivePlayers: number,
-			readonly playersDices: number[],
-			readonly firstPlayer: number) { }
+			readonly playersDicesById: number[],
+			readonly firstPlayerId: number) {
+			this.isFirstPlayerOfCurrentRoundPlafico = playersDicesById[firstPlayerId] === 1;
+		}
 
 		public get beforeEndTurns() {
 			return this._beforeEndTurns;
@@ -89,10 +93,45 @@ export namespace PerudoGame {
 			const isRoundBeginning = this._beforeEndTurns.length == 0;
 			const previousTurn: BeforeLastTurn | null = isRoundBeginning ? null : this._beforeEndTurns[this._beforeEndTurns.length - 1] as BeforeLastTurn;
 			if (isDiceBid(playerChoice)) {
+				if (this.isFirstPlayerOfCurrentRoundPlafico) {
+
+				}
+				else {
+					if (isRoundBeginning) {
+						if (playerChoice.diceFace === DiceFace.Paco && this.isFirstPlayerOfCurrentRoundPlafico) {
+							throw new Error("It is forbidden to start a round by bidding a quantity of pacos if the first player of the round has more than one dice");
+						}
+					}
+					else {
+						if (previousTurn.bid.diceFace !== DiceFace.Paco) {
+							if (playerChoice.diceFace === DiceFace.Paco) {
+								if (playerChoice.diceQuantity < Math.ceil(previousTurn.bid.diceQuantity / 2)) {
+									throw new Error("the quantity of a bid of pacos following a bid of other value than paco must be superior to the half of the previous bid rounded up");
+								}
+							}
+							else if (playerChoice.diceFace > previousTurn.bid.diceFace === playerChoice.diceQuantity > previousTurn.bid.diceQuantity) {
+								throw new Error("a bid of other value than paco following a bid of other value than paco must be of greater quantity OR greater value, and not both");
+							}
+						}
+						else {
+							if (playerChoice.diceFace === DiceFace.Paco) {
+								if (playerChoice.diceQuantity <= previousTurn.bid.diceQuantity) {
+									throw new Error("a bid of pacos following a bid of pacos must increase the quantity");
+								}
+							}
+							else {
+								const previousNonPacoBidQuantity = findLast(this.beforeEndTurns, turn => turn.bid.diceFace !== DiceFace.Paco).bid.diceQuantity;
+								if (playerChoice.diceQuantity <= previousNonPacoBidQuantity * 2) {
+									throw new Error("a bid of non pacos following a bid of pacos must be greater than twice the most recent bid of non pacos");
+								}
+							}
+						}
+					}
+				}
 				this._beforeEndTurns.push(
 					new BeforeLastTurn(
 						isRoundBeginning ? 0 : previousTurn.turn + 1,
-						isRoundBeginning ? this.firstPlayer : (previousTurn.playerId + 1) % this._nbActivePlayers,
+						isRoundBeginning ? this.firstPlayerId : (previousTurn.playerId + 1) % this._nbActivePlayers,
 						playerChoice));
 			}
 			else {
@@ -124,7 +163,7 @@ export namespace PerudoGame {
 
 		public initializeNewRound(): void {
 			const previousRound = this._rounds[this._rounds.length - 1];
-			const newRound = new Round([], null, false, this._nbPlayers, previousRound.playersDices, previousRound.winnerPlayer);
+			const newRound = new Round([], null, false, this._nbPlayers, previousRound.playersDicesById, previousRound.winnerPlayer);
 		}
 
 		public get currentRound() {
@@ -142,5 +181,14 @@ export namespace PerudoGame {
 		public get isOver() {
 			return this._isOver;
 		}
+	}
+
+	function findLast<T>(array: Array<T>, predicate: (item: T) => boolean): T | undefined {
+		for (let i = this.array.length - 1; i >= 0; i--) {
+			if (predicate(array[i])) {
+				return array[i];
+			}
+		}
+		return undefined;
 	}
 }
