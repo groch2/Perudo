@@ -1,4 +1,5 @@
 import { PerudoGame } from "./PerudoGame";
 
-const diceDraw = PerudoGame.getDrawByThrowingDices(5).map(d => PerudoGame.DiceFace[d]);
-console.log(diceDraw);
+let diceDraw = PerudoGame.getDrawByThrowingDices(5);
+//[...diceDraw.entries()].map(pair => [PerudoGame.DiceFace[pair[0]], pair[1]]);
+console.log([...diceDraw.entries()]);

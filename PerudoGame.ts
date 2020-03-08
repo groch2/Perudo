@@ -1,4 +1,6 @@
 export namespace PerudoGame {
+	const nbStartingDicesByPlayer = 5;
+
 	export enum DiceFace { Paco, Two, Three, Four, Five, Six }
 
 	export type PlayerDiceBid = { diceFace: DiceFace, diceQuantity: number }
@@ -40,7 +42,8 @@ export namespace PerudoGame {
 			private _beforeEndTurns: BeforeLastTurn[],
 			private _endTurn: LastTurn,
 			private _isOver: boolean,
-			private _nbActivePlayers: number,
+			public readonly nbPlayers: number,
+			public readonly nbDicesOfEachPlayerByPlayerId: number[],
 			readonly playersDicesDrawByPlayerId: Map<DiceFace, number>[],
 			readonly firstPlayerId: number) {
 			this.isFirstPlayerOfCurrentRoundPlafico =
@@ -94,7 +97,7 @@ export namespace PerudoGame {
 		public playerPlays(playerChoice: PlayerDiceBid | PlayerEndOfRoundCall): void {
 			const isRoundBeginning = this._beforeEndTurns.length == 0;
 			const previousTurn: BeforeLastTurn | null = isRoundBeginning ? null : this._beforeEndTurns[this._beforeEndTurns.length - 1] as BeforeLastTurn;
-			const playerIdOfCurrentTurn = (previousTurn.playerId + 1) % this._nbActivePlayers;
+			const playerIdOfCurrentTurn = (previousTurn.playerId + 1) % this.nbPlayers;
 			if (isDiceBid(playerChoice)) {
 				if (this.isFirstPlayerOfCurrentRoundPlafico) {
 					if (playerChoice.diceFace > previousTurn.bid.diceFace === playerChoice.diceQuantity > previousTurn.bid.diceQuantity) {
@@ -182,18 +185,31 @@ export namespace PerudoGame {
 		private _isOver: boolean;
 		private _nbPlayers: number;
 		private _rounds: Round[];
+		readonly diceFaces: string[];
 
 		public constructor(nbPlayers: number) {
 			this._isOver = false;
 			this._nbPlayers = nbPlayers;
-			const firstRound = new Round([], null, false, this.nbPlayers, Object.assign([], { length: nbPlayers }).fill(5), 0);
+			const firstRound = new Round([], null, false, this.nbPlayers, Object.assign([], { length: nbPlayers }).fill(nbStartingDicesByPlayer), Object.assign([], { length: nbPlayers }).fill(0).map(_ => getDrawByThrowingDices(nbStartingDicesByPlayer)), 0);
 			this._rounds = [];
 			this._rounds.push(firstRound);
+			this.diceFaces = Object.keys(DiceFace);
+			this.diceFaces = this.diceFaces.slice(this.diceFaces.length / 2);
 		}
 
 		public initializeNewRound(): void {
 			const previousRound = this._rounds[this._rounds.length - 1];
-			const newRound = new Round([], null, false, this._nbPlayers, previousRound.playersDicesDrawByPlayerId, previousRound.winnerPlayer);
+			const nbPlayers = previousRound.nbPlayers + previousRound.looserPlayer !== undefined ? -1 : 1;
+			const nbDicesOfEachPlayerByPlayerId = previousRound.nbDicesOfEachPlayerByPlayerId.splice(0);
+			if (previousRound.looserPlayer !== undefined) {
+				nbDicesOfEachPlayerByPlayerId[previousRound.looserPlayer] -= 1;
+			}
+			else {
+				nbDicesOfEachPlayerByPlayerId[previousRound.winnerPlayer] += 1;
+			}
+			const firstPlayer = previousRound.looserPlayer || previousRound.winnerPlayer;
+			const playersDicesDrawByPlayerId = Object.assign([], { length: nbPlayers }).fill(0).map(playerId => getDrawByThrowingDices(nbDicesOfEachPlayerByPlayerId[playerId]));
+			const newRound = new Round([], null, false, nbPlayers, nbDicesOfEachPlayerByPlayerId, playersDicesDrawByPlayerId, firstPlayer);
 		}
 
 		public get currentRound() {
@@ -214,9 +230,15 @@ export namespace PerudoGame {
 	}
 
 	/// randomly generate a draw for a given number of perudo dices
-	export function getDrawByThrowingDices(nbDices: number): DiceFace[] {
-		const nbFacesOfPerudoDice = Object.keys(DiceFace).length / 2;
-		return new Array(nbDices).fill(0).map(_ => Math.trunc((Math.random() * nbFacesOfPerudoDice)) as DiceFace);
+	export function getDrawByThrowingDices(nbDices: number): Map<DiceFace, number> {
+		if (this.diceFaces === undefined) {
+			this.diceFaces = Object.keys(DiceFace);
+			this.diceFaces = this.diceFaces.slice(this.diceFaces.length / 2);
+		}
+		let nbDiceByFace = this.diceFaces.reduce((state, item) => state.set(item, 0), new Map());
+		new Array(nbDices).fill(0).map(_ => Math.trunc((Math.random() * this.diceFaces.length)) as DiceFace)
+			.forEach(diceFace => nbDiceByFace.set(DiceFace[diceFace], nbDiceByFace.get(DiceFace[diceFace]) + 1));
+		return nbDiceByFace;
 	}
 
 	function findLast<T>(array: Array<T>, predicate: (item: T) => boolean): T | undefined {
