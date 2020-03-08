@@ -41,9 +41,11 @@ export namespace PerudoGame {
 			private _endTurn: LastTurn,
 			private _isOver: boolean,
 			private _nbActivePlayers: number,
-			readonly playersDicesById: number[],
+			readonly playersDicesDrawByPlayerId: Map<DiceFace, number>[],
 			readonly firstPlayerId: number) {
-			this.isFirstPlayerOfCurrentRoundPlafico = playersDicesById[firstPlayerId] === 1;
+			this.isFirstPlayerOfCurrentRoundPlafico =
+				[...playersDicesDrawByPlayerId[firstPlayerId].values()]
+					.reduce((firstPlayerDicesTotal, playerNbDicesOfFace) => firstPlayerDicesTotal + playerNbDicesOfFace) === 1;
 		}
 
 		public get beforeEndTurns() {
@@ -65,7 +67,7 @@ export namespace PerudoGame {
 			return this._isOver;
 		}
 
-		private _looserPlayer: number;
+		private _looserPlayer: number | undefined;
 		public get looserPlayer() {
 			if (!this.isOver) {
 				throw new Error("this round is not over yet");
@@ -73,7 +75,7 @@ export namespace PerudoGame {
 			return this._looserPlayer;
 		}
 
-		private _winnerPlayer: number;
+		private _winnerPlayer: number | undefined;
 		public get winnerPlayer() {
 			if (!this.isOver) {
 				throw new Error("this round is not over yet");
@@ -81,7 +83,7 @@ export namespace PerudoGame {
 			return this._winnerPlayer;
 		}
 
-		public EndRound(looserPlayer: number, winnerPlayer: number): void {
+		public SetLooserAndWinnerOfRound(looserPlayer: number, winnerPlayer: number): void {
 			if (this.isOver) {
 				throw new Error("This round is already over");
 			}
@@ -92,9 +94,12 @@ export namespace PerudoGame {
 		public playerPlays(playerChoice: PlayerDiceBid | PlayerEndOfRoundCall): void {
 			const isRoundBeginning = this._beforeEndTurns.length == 0;
 			const previousTurn: BeforeLastTurn | null = isRoundBeginning ? null : this._beforeEndTurns[this._beforeEndTurns.length - 1] as BeforeLastTurn;
+			const playerIdOfCurrentTurn = (previousTurn.playerId + 1) % this._nbActivePlayers;
 			if (isDiceBid(playerChoice)) {
 				if (this.isFirstPlayerOfCurrentRoundPlafico) {
-
+					if (playerChoice.diceFace > previousTurn.bid.diceFace === playerChoice.diceQuantity > previousTurn.bid.diceQuantity) {
+						throw new Error("in a round where a the first player is plafico, a bid must be of greater quantity OR greater value than the previous one, and not both");
+					}
 				}
 				else {
 					if (isRoundBeginning) {
@@ -131,7 +136,7 @@ export namespace PerudoGame {
 				this._beforeEndTurns.push(
 					new BeforeLastTurn(
 						isRoundBeginning ? 0 : previousTurn.turn + 1,
-						isRoundBeginning ? this.firstPlayerId : (previousTurn.playerId + 1) % this._nbActivePlayers,
+						isRoundBeginning ? this.firstPlayerId : playerIdOfCurrentTurn,
 						playerChoice));
 			}
 			else {
@@ -141,8 +146,33 @@ export namespace PerudoGame {
 				this._endTurn =
 					new LastTurn(
 						previousTurn.turn + 1,
-						(previousTurn.playerId + 1) % this._nbActivePlayers,
+						playerIdOfCurrentTurn,
 						playerChoice);
+				const countPacosAsJoker = previousTurn.bid.diceFace !== DiceFace.Paco && !this.isFirstPlayerOfCurrentRoundPlafico;
+				const nbDicesMatchingLastBid =
+					this.playersDicesDrawByPlayerId.reduce((diceTotal, playerDices) => {
+						return diceTotal + playerDices[previousTurn.bid.diceFace] + (countPacosAsJoker ? playerDices[DiceFace.Paco] : 0);
+					}, 0);
+				switch (playerChoice) {
+					case PlayerEndOfRoundCall.Bluff:
+						if (previousTurn.bid.diceQuantity < nbDicesMatchingLastBid) {
+							this.SetLooserAndWinnerOfRound(playerIdOfCurrentTurn, previousTurn.playerId);
+						}
+						else {
+							this.SetLooserAndWinnerOfRound(previousTurn.playerId, playerIdOfCurrentTurn);
+						}
+						break;
+					case PlayerEndOfRoundCall.ExactMatch:
+						if (previousTurn.bid.diceQuantity === nbDicesMatchingLastBid) {
+
+						}
+						else {
+
+						}
+						break;
+					default:
+						throw new Error("unknown end of round call");
+				}
 				this._isOver = true;
 			}
 		};
@@ -163,7 +193,7 @@ export namespace PerudoGame {
 
 		public initializeNewRound(): void {
 			const previousRound = this._rounds[this._rounds.length - 1];
-			const newRound = new Round([], null, false, this._nbPlayers, previousRound.playersDicesById, previousRound.winnerPlayer);
+			const newRound = new Round([], null, false, this._nbPlayers, previousRound.playersDicesDrawByPlayerId, previousRound.winnerPlayer);
 		}
 
 		public get currentRound() {
@@ -181,6 +211,17 @@ export namespace PerudoGame {
 		public get isOver() {
 			return this._isOver;
 		}
+	}
+
+	/// randomly generate a draw for a given number of perudo dices
+	export function getDrawByThrowingDices(nbDices: number): DiceFace[] {
+		return [...
+			(function* () {
+				const nbFacesOfPerudoDice = Object.keys(DiceFace).length / 2;
+				while (nbDices-- > 0) {
+					yield Math.trunc((Math.random() * nbFacesOfPerudoDice)) as DiceFace;
+				}
+			})()];
 	}
 
 	function findLast<T>(array: Array<T>, predicate: (item: T) => boolean): T | undefined {
