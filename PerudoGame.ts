@@ -215,13 +215,8 @@ export namespace PerudoGame {
 
 	/// randomly generate a draw for a given number of perudo dices
 	export function getDrawByThrowingDices(nbDices: number): DiceFace[] {
-		return [...
-			(function* () {
-				const nbFacesOfPerudoDice = Object.keys(DiceFace).length / 2;
-				while (nbDices-- > 0) {
-					yield Math.trunc((Math.random() * nbFacesOfPerudoDice)) as DiceFace;
-				}
-			})()];
+		const nbFacesOfPerudoDice = Object.keys(DiceFace).length / 2;
+		return new Array(nbDices).fill(0).map(_ => Math.trunc((Math.random() * nbFacesOfPerudoDice)) as DiceFace);
 	}
 
 	function findLast<T>(array: Array<T>, predicate: (item: T) => boolean): T | undefined {
