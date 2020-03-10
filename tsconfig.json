@@ -15,6 +15,7 @@
     "files": [
         "PerudoGame.ts",
         "Test.ts",
-        "TestThrowingDices.ts"
+        "TestThrowingDices.ts",
+        "TestBluff.ts"
     ]
 }
