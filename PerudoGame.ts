@@ -58,7 +58,7 @@ export namespace PerudoGame {
 			return this._endTurn;
 		}
 
-		public get lastBeforeEndTurn() {
+		public get lastTurn() {
 			return (
 				this.isOver ?
 					this.endTurn :
@@ -72,7 +72,7 @@ export namespace PerudoGame {
 		public playerPlays(playerChoice: PlayerDiceBid | PlayerEndOfRoundCall): void {
 			const isRoundBeginning = this._beforeEndTurns.length == 0;
 			const previousTurn = isRoundBeginning ? null : this._beforeEndTurns[this._beforeEndTurns.length - 1] as BeforeLastTurn;
-			const playerIdOfCurrentTurn = previousTurn ? (previousTurn.playerId + 1) % this.nbPlayers : null;
+			const playerIdOfCurrentTurn = previousTurn ? (previousTurn.playerId + 1) % this.nbPlayers : 0;
 			if (isDiceBid(playerChoice)) {
 				if (this.isFirstPlayerOfCurrentRoundPlafico) {
 					if (playerChoice.diceFace > previousTurn.bid.diceFace === playerChoice.diceQuantity > previousTurn.bid.diceQuantity) {
@@ -113,8 +113,8 @@ export namespace PerudoGame {
 				}
 				this._beforeEndTurns.push(
 					new BeforeLastTurn(
+						playerIdOfCurrentTurn,
 						isRoundBeginning ? 0 : previousTurn.turnId + 1,
-						isRoundBeginning ? this.firstPlayerId : playerIdOfCurrentTurn,
 						playerChoice));
 			}
 			else {

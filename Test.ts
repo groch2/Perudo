@@ -5,10 +5,10 @@ const game = new PerudoGame.Game(nbPlayers);
 
 const nbTurnsBeforeLast = nbPlayers * 2;
 for (let turn = 0; turn < nbTurnsBeforeLast; turn++) {
-    const bid = { diceFace: PerudoGame.DiceFace.Two, diceQuantity: 4 + turn };
+    const bid = { diceFace: PerudoGame.DiceFace.Two, diceQuantity: 3 + turn };
     game.currentRound.playerPlays(bid);
-    console.log(game.currentRound.lastBeforeEndTurn);
+    console.log(game.currentRound.lastTurn);
 }
 
 game.currentRound.playerPlays(PerudoGame.PlayerEndOfRoundCall.ExactMatch);
-console.log(game.currentRound.lastBeforeEndTurn);
+console.log(game.currentRound.lastTurn);
