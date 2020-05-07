@@ -155,6 +155,20 @@ export namespace PerudoGame {
 				this._isOver = true;
 			}
 		};
+
+		public getTotalNbDiceByFaceIndex() {
+			const nbDiceByFace = new Array<number>(diceFacesNames.length).fill(0);
+			this.playersDicesDrawByPlayerId.forEach(playerDices => {
+				[...[...playerDices.values()].entries()].forEach(diceQuantity => {
+					nbDiceByFace[diceQuantity[0]] += diceQuantity[1];
+				});
+			});
+			return nbDiceByFace;
+		}
+
+		public getTotalNbDiceByFaceName() {
+			return [...this.getTotalNbDiceByFaceIndex().entries()].map(diceQuantity => [diceFacesNames[diceQuantity[0]], diceQuantity[1]]);
+		}
 	}
 
 	export class Game {
@@ -207,8 +221,7 @@ export namespace PerudoGame {
 
 	export const diceFacesNames = (function () {
 		let diceFaces = Object.keys(DiceFace);
-		diceFaces = diceFaces.slice(diceFaces.length / 2);
-		return diceFaces;
+		return diceFaces.slice(diceFaces.length / 2);
 	})();
 
 	export let throwingDicesEnabled = true;
