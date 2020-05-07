@@ -167,7 +167,8 @@ export namespace PerudoGame {
 		}
 
 		public getTotalNbDiceByFaceName() {
-			return [...this.getTotalNbDiceByFaceIndex().entries()].map(diceQuantity => [diceFacesNames[diceQuantity[0]], diceQuantity[1]]);
+			return [...this.getTotalNbDiceByFaceIndex().entries()]
+				.map(([diceNameIndex, diceQuantity]) => [diceFacesNames[diceNameIndex], diceQuantity]);
 		}
 	}
 
