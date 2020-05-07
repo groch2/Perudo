@@ -159,9 +159,9 @@ export namespace PerudoGame {
 		public getTotalNbDiceByFaceIndex() {
 			const nbDiceByFace = new Array<number>(diceFacesNames.length).fill(0);
 			this.playersDicesDrawByPlayerId.forEach(playerDices => {
-				[...[...playerDices.values()].entries()].forEach(diceQuantity => {
-					nbDiceByFace[diceQuantity[0]] += diceQuantity[1];
-				});
+				for (let [diceFace, quantity] of playerDices) {
+					nbDiceByFace[DiceFace[diceFace]] += quantity;
+				}
 			});
 			return nbDiceByFace;
 		}
