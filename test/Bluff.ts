@@ -3,8 +3,6 @@ import { PerudoGame } from "../PerudoGame";
 const nbPlayers = 2;
 PerudoGame.throwingDicesEnabled = false;
 
-const getTotalNbDiceByFaceName = (game) => game.currentRound.getTotalNbDiceByFaceName().filter(([, quantity]) => quantity > 0);
-
 (function secondPlayersCallsBluffAndLooseOneDice() {
     const game = new PerudoGame.Game(nbPlayers);
 
@@ -14,7 +12,7 @@ const getTotalNbDiceByFaceName = (game) => game.currentRound.getTotalNbDiceByFac
     game.currentRound.playersDicesDrawByPlayerId[1].set(<any>PerudoGame.DiceFace[PerudoGame.DiceFace.Two], 2);
     game.currentRound.playersDicesDrawByPlayerId[1].set(<any>PerudoGame.DiceFace[PerudoGame.DiceFace.Four], 1);
 
-    console.log({ totalDicesQuantity: getTotalNbDiceByFaceName(game) });
+    console.log({ totalDicesQuantity: game.currentRound.getTotalPositiveNbDiceByFaceName() });
 
     game.playerPlays({ diceFace: PerudoGame.DiceFace.Four, diceQuantity: 4 });
 
@@ -36,7 +34,7 @@ const getTotalNbDiceByFaceName = (game) => game.currentRound.getTotalNbDiceByFac
 
     game.currentRound.playersDicesDrawByPlayerId[1].set(<any>PerudoGame.DiceFace[PerudoGame.DiceFace.Four], 2);
 
-    console.log({ totalDicesQuantity: getTotalNbDiceByFaceName(game) });
+    console.log({ totalDicesQuantity: game.currentRound.getTotalPositiveNbDiceByFaceName() });
 
     game.playerPlays({ diceFace: PerudoGame.DiceFace.Four, diceQuantity: 3 });
 

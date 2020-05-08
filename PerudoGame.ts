@@ -170,6 +170,10 @@ export namespace PerudoGame {
 			return [...this.getTotalNbDiceByFaceIndex().entries()]
 				.map(([diceNameIndex, diceQuantity]) => [diceFacesNames[diceNameIndex], diceQuantity]);
 		}
+
+		public getTotalPositiveNbDiceByFaceName() {
+			return this.getTotalNbDiceByFaceName().filter(([, quantity]) => quantity > 0);
+		}
 	}
 
 	export class Game {
