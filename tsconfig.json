@@ -13,9 +13,9 @@
         "sourceMap": true
     },
     "files": [
-        "PerudoGame.ts",
-        "Test.ts",
-        "TestThrowingDices.ts",
-        "TestBluff.ts"
-    ]
+        "PerudoGame.ts"
+    ],
+    "include": [
+        "test/*.ts"
+    ],
 }

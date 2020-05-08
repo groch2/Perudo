@@ -1,4 +1,4 @@
-import { PerudoGame } from "./PerudoGame";
+import { PerudoGame } from "../PerudoGame";
 
 const nbPlayers = 2;
 PerudoGame.throwingDicesEnabled = false;
