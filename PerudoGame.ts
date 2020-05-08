@@ -222,6 +222,14 @@ export namespace PerudoGame {
 		public playerPlays(playerChoice: PlayerDiceBid | PlayerEndOfRoundCall): void {
 			this.currentRound.playerPlays(playerChoice);
 		}
+
+		public getNbDicesOfEachPlayerByPlayerId() {
+			return this.currentRound.nbDicesOfEachPlayerByPlayerId;
+		}
+
+		public getDicesFacesOfCurrentRoundByPlayerId() {
+			return this.currentRound.playersDicesDrawByPlayerId;
+		}
 	}
 
 	export const diceFacesNames = (function () {
