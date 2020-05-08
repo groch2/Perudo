@@ -1,5 +1,5 @@
 export namespace PerudoGame {
-	const nbStartingDicesByPlayer = 5;
+	export const nbStartingDicesByPlayer = 5;
 
 	export enum DiceFace { Paco, Two, Three, Four, Five, Six }
 

@@ -2,25 +2,50 @@ import { PerudoGame } from "../PerudoGame";
 
 const nbPlayers = 2;
 PerudoGame.throwingDicesEnabled = false;
-const game = new PerudoGame.Game(nbPlayers);
 
-for (let diceFace = 0; diceFace < PerudoGame.diceFacesNames.length; diceFace++) {
-    for (let playerId = 0; playerId < 2; playerId++) {
-        game.currentRound.playersDicesDrawByPlayerId[playerId].set(diceFace, 0);
-    }
-}
+const getTotalNbDiceByFaceName = (game) => game.currentRound.getTotalNbDiceByFaceName().filter(([, quantity]) => quantity > 0);
 
-game.currentRound.playersDicesDrawByPlayerId[0].set(PerudoGame.DiceFace.Paco, 1);
-game.currentRound.playersDicesDrawByPlayerId[0].set(PerudoGame.DiceFace.Four, 1);
+(function secondPlayersCallsBluffAndLooseOneDice() {
+    const game = new PerudoGame.Game(nbPlayers);
 
-game.currentRound.playersDicesDrawByPlayerId[1].set(PerudoGame.DiceFace.Three, 2);
-game.currentRound.playersDicesDrawByPlayerId[1].set(PerudoGame.DiceFace.Four, 1);
+    game.currentRound.playersDicesDrawByPlayerId[0].set(<any>PerudoGame.DiceFace[PerudoGame.DiceFace.Two], 1);
+    game.currentRound.playersDicesDrawByPlayerId[0].set(<any>PerudoGame.DiceFace[PerudoGame.DiceFace.Four], 1);
 
-console.log(game.currentRound.getTotalNbDiceByFaceName());
+    game.currentRound.playersDicesDrawByPlayerId[1].set(<any>PerudoGame.DiceFace[PerudoGame.DiceFace.Two], 2);
+    game.currentRound.playersDicesDrawByPlayerId[1].set(<any>PerudoGame.DiceFace[PerudoGame.DiceFace.Four], 1);
 
-game.playerPlays({ diceFace: PerudoGame.DiceFace.Four, diceQuantity: 4 });
-game.playerPlays(PerudoGame.PlayerEndOfRoundCall.Bluff);
+    console.log({ totalDicesQuantity: getTotalNbDiceByFaceName(game) });
 
-game.initializeNewRound();
+    game.playerPlays({ diceFace: PerudoGame.DiceFace.Four, diceQuantity: 4 });
 
-console.log({ nbDicesOfEachPlayerByPlayerId: game.currentRound.nbDicesOfEachPlayerByPlayerId });
+    console.log({ nbDicesOfEachPlayerByPlayerId: game.currentRound.nbDicesOfEachPlayerByPlayerId });
+
+    game.playerPlays(PerudoGame.PlayerEndOfRoundCall.Bluff);
+
+    console.log({ nbDicesOfEachPlayerByPlayerId: game.currentRound.nbDicesOfEachPlayerByPlayerId });
+
+    console.assert(game.currentRound.nbDicesOfEachPlayerByPlayerId[0] == PerudoGame.nbStartingDicesByPlayer - 1, "player 1 should have 4 dices");
+    console.assert(game.currentRound.nbDicesOfEachPlayerByPlayerId[1] == PerudoGame.nbStartingDicesByPlayer, "player 2 should have 5 dices");
+})();
+
+(function secondPlayersCallsBluffAndFirstPlayerLooseOneDice() {
+    const game = new PerudoGame.Game(nbPlayers);
+
+    game.currentRound.playersDicesDrawByPlayerId[0].set(<any>PerudoGame.DiceFace[PerudoGame.DiceFace.Two], 1);
+    game.currentRound.playersDicesDrawByPlayerId[0].set(<any>PerudoGame.DiceFace[PerudoGame.DiceFace.Four], 1);
+
+    game.currentRound.playersDicesDrawByPlayerId[1].set(<any>PerudoGame.DiceFace[PerudoGame.DiceFace.Four], 2);
+
+    console.log({ totalDicesQuantity: getTotalNbDiceByFaceName(game) });
+
+    game.playerPlays({ diceFace: PerudoGame.DiceFace.Four, diceQuantity: 3 });
+
+    console.log({ nbDicesOfEachPlayerByPlayerId: game.currentRound.nbDicesOfEachPlayerByPlayerId });
+
+    game.playerPlays(PerudoGame.PlayerEndOfRoundCall.Bluff);
+
+    console.log({ nbDicesOfEachPlayerByPlayerId: game.currentRound.nbDicesOfEachPlayerByPlayerId });
+
+    console.assert(game.currentRound.nbDicesOfEachPlayerByPlayerId[0] == PerudoGame.nbStartingDicesByPlayer, "player 1 should have 5 dices");
+    console.assert(game.currentRound.nbDicesOfEachPlayerByPlayerId[1] == PerudoGame.nbStartingDicesByPlayer - 1, "player 2 should have 4 dices");
+})();
