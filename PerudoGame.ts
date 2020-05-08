@@ -50,6 +50,10 @@ export namespace PerudoGame {
 					.reduce((firstPlayerDicesTotal, playerNbDicesOfFace) => firstPlayerDicesTotal + playerNbDicesOfFace) === 1;
 		}
 
+		public get nextPlayerId() {
+			return (this.firstPlayerId + this._beforeEndTurns.length + (this._endTurn ? 1 : 0)) % this.nbPlayers;
+		}
+
 		public get beforeEndTurns() {
 			return this._beforeEndTurns;
 		}
