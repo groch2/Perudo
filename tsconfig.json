@@ -14,7 +14,8 @@
     },
     "files": [
         "PerudoGame.ts",
-        "ConsoleMode.ts"
+        "ConsoleMode.ts",
+        "test.ts"
     ],
     "include": [
         "test/*.ts"

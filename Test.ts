@@ -2,6 +2,7 @@ import { PerudoGame } from "./PerudoGame";
 
 const nbPlayers = 3;
 const game = new PerudoGame.Game(nbPlayers);
+console.log("dice faces: ", game.currentRound.getTotalNbDiceByFaceName());
 
 const nbTurnsBeforeLast = nbPlayers * 2;
 for (let turn = 0; turn < nbTurnsBeforeLast; turn++) {
@@ -10,5 +11,7 @@ for (let turn = 0; turn < nbTurnsBeforeLast; turn++) {
     console.log(game.currentRound.lastTurn);
 }
 
-game.currentRound.playerPlays(PerudoGame.PlayerEndOfRoundCall.ExactMatch);
-console.log(game.currentRound.lastTurn);
+game.currentRound.playerPlays(PerudoGame.PlayerEndOfRoundCall.Bluff);
+console.log(game.currentRound.endOfRound);
+
+console.log(game.getNbDicesOfEachPlayerByPlayerId());
