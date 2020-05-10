@@ -18,10 +18,12 @@ const rl =
     const nbDicesOfEachPlayerByPlayerId = game.getNbDicesOfEachPlayerByPlayerId();
     const nextPlayerId = game.currentRound.nextPlayerId;
     const question =
-        `round ${game.previousRounds.length}
+        `round ${game.previousRounds.length - 1}
 nb dices of other players: ${nbDicesOfEachPlayerByPlayerId.reduce((a, b) => a + b) - nbDicesOfEachPlayerByPlayerId[nextPlayerId]}
 next player id: ${nextPlayerId}
-next player dices: ${[...nextPlayerDices.values()]}\n`;
+next player dices: ${[...nextPlayerDices.values()]}
+turn number: ${game.currentRound.getTurnNumber()}\n`;
+game.currentRound.lastTurn
     rl.question(question, answer => {
         console.log(answer);
         switch (answer) {

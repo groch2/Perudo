@@ -35,6 +35,7 @@ export namespace PerudoGame {
 	}
 
 	export class Round {
+		// if the first player of the round has only one dice left, then he or she is plafico and the pacos does not count has jokers during this round
 		readonly isFirstPlayerOfCurrentRoundPlafico: boolean;
 
 		constructor(
@@ -85,8 +86,8 @@ export namespace PerudoGame {
 				}
 				else {
 					if (isRoundBeginning) {
-						if (playerChoice.diceFace === DiceFace.Paco && this.isFirstPlayerOfCurrentRoundPlafico) {
-							throw new Error("It is forbidden to start a round by bidding a quantity of pacos if the first player of the round has more than one dice");
+						if (playerChoice.diceFace === DiceFace.Paco) {
+							throw new Error("It is forbidden to start a round by bidding pacos if the first player of the round has more than one dice");
 						}
 					}
 					else {
@@ -177,6 +178,10 @@ export namespace PerudoGame {
 
 		public getTotalPositiveNbDiceByFaceName() {
 			return this.getTotalNbDiceByFaceName().filter(([, quantity]) => quantity > 0);
+		}
+
+		public getTurnNumber() {
+			return this._beforeEndTurns.length;
 		}
 	}
 
