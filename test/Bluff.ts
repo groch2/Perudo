@@ -24,7 +24,15 @@ PerudoGame.throwingDicesEnabled = false;
 
     console.assert(game.currentRound.nbDicesOfEachPlayerByPlayerId[0] == PerudoGame.nbStartingDicesByPlayer - 1, "player 1 should have 4 dices");
     console.assert(game.currentRound.nbDicesOfEachPlayerByPlayerId[1] == PerudoGame.nbStartingDicesByPlayer, "player 2 should have 5 dices");
+
+    game.initializeNewRound();
+
+    console.log({ firstPlayer: game.currentRound.firstPlayerId });
+
+    console.assert(game.currentRound.firstPlayerId == 0, "the first player of the new round should be player with id 0.");
 })();
+
+console.log();
 
 (function secondPlayersCallsBluffAndFirstPlayerLooseOneDice() {
     const game = new PerudoGame.Game(nbPlayers);
@@ -46,4 +54,10 @@ PerudoGame.throwingDicesEnabled = false;
 
     console.assert(game.currentRound.nbDicesOfEachPlayerByPlayerId[0] == PerudoGame.nbStartingDicesByPlayer, "player 1 should have 5 dices");
     console.assert(game.currentRound.nbDicesOfEachPlayerByPlayerId[1] == PerudoGame.nbStartingDicesByPlayer - 1, "player 2 should have 4 dices");
+
+    game.initializeNewRound();
+
+    console.log({ firstPlayer: game.currentRound.firstPlayerId });
+
+    console.assert(game.currentRound.firstPlayerId == 1, "the first player of the new round should be player with id 1.");
 })();

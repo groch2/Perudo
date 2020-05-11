@@ -7,6 +7,12 @@ export namespace PerudoGame {
 
 	export enum PlayerEndOfRoundCall { Bluff, ExactMatch }
 
+	export enum PlayerPosition { Last, BeforeLast }
+
+	export enum RoundDiceOutcome { PlayerLostOneDice, PlayerRecoveredOneDice }
+
+	export class Last2PlayersOfRound { lastPlayerId: number; beforeLastPlayerId: number }
+
 	export class Turn {
 		constructor(
 			readonly playerId: number,
@@ -16,9 +22,21 @@ export namespace PerudoGame {
 
 	export class EndOfRound {
 		constructor(
-			readonly playerId: number,
-			readonly bid: PlayerEndOfRoundCall,
-			readonly playerIdWhoLostOneDice: number | undefined) { }
+			readonly lastPlayerId: number,
+			readonly beforeLastPlayerId: number,
+			readonly playerEndOfRoundCall: PlayerEndOfRoundCall,
+			readonly impactedPlayerId: number | undefined,
+			readonly roundDiceOutcome: RoundDiceOutcome | undefined) { }
+		get positionOfPlayerImpactedByDiceOutcome() {
+			switch (this.impactedPlayerId) {
+				case this.lastPlayerId:
+					return PlayerPosition.Last;
+				case this.beforeLastPlayerId:
+					return PlayerPosition.BeforeLast;
+				default:
+					return undefined;
+			}
+		}
 	}
 
 	function isDiceBid(playerChoice: PlayerDiceBid | PlayerEndOfRoundCall): playerChoice is PlayerDiceBid {
@@ -112,30 +130,45 @@ export namespace PerudoGame {
 			}
 			else {
 				if (isRoundBeginning) {
-					throw Error("It is an error to end a round at the beginning of the round, before any bid was made.");
+					throw Error("It is an error to call a bluff or an exact match at the beginning of the round, before any bid was made.");
 				}
 				const countPacosAsJoker = previousTurn.bid.diceFace !== DiceFace.Paco && !this.isFirstPlayerOfCurrentRoundPlafico;
 				const nbDicesMatchingLastBid =
 					this.playersDicesDrawByPlayerId.reduce((diceTotal, playerDices) => {
 						return diceTotal + playerDices.get(<any>DiceFace[previousTurn.bid.diceFace]) + (countPacosAsJoker ? playerDices.get(<any>DiceFace[DiceFace.Paco]) : 0);
 					}, 0);
-				let playerIdWhoLostOneDice: undefined | number;
+				let impactedPlayerId: undefined | number;
+				let roundDiceOutcome: RoundDiceOutcome | undefined;
 				switch (playerChoice) {
 					case PlayerEndOfRoundCall.Bluff:
-						const looserPlayerId =
+						roundDiceOutcome = RoundDiceOutcome.PlayerLostOneDice;
+						const [looserPlayerId, positionOfPlayerImpactedByDiceOutcome] =
 							nbDicesMatchingLastBid < previousTurn.bid.diceQuantity ?
-								previousTurn.playerId :
-								playerIdOfCurrentTurn;
+								[previousTurn.playerId, PlayerPosition.BeforeLast] :
+								[playerIdOfCurrentTurn, PlayerPosition.Last];
 						this.nbDicesOfEachPlayerByPlayerId[looserPlayerId]--;
-						playerIdWhoLostOneDice = looserPlayerId;
+						impactedPlayerId = looserPlayerId;
 						break;
 					case PlayerEndOfRoundCall.ExactMatch:
 						const isExactMatch = previousTurn.bid.diceQuantity === nbDicesMatchingLastBid;
-						this.nbDicesOfEachPlayerByPlayerId[playerIdOfCurrentTurn] +=
-							isExactMatch ? 1 : -1;
-						this.nbDicesOfEachPlayerByPlayerId[playerIdOfCurrentTurn] =
-							Math.min(this.nbDicesOfEachPlayerByPlayerId[playerIdOfCurrentTurn], nbStartingDicesByPlayer);
-						playerIdWhoLostOneDice = isExactMatch ? undefined : playerIdOfCurrentTurn;
+						const nbDicesOfLastPlayer = this.nbDicesOfEachPlayerByPlayerId[playerIdOfCurrentTurn];
+						[impactedPlayerId, roundDiceOutcome] =
+							(() => {
+								if (isExactMatch) {
+									return nbDicesOfLastPlayer === nbStartingDicesByPlayer ? [undefined, undefined] : [playerIdOfCurrentTurn, RoundDiceOutcome.PlayerRecoveredOneDice];
+								}
+								return [playerIdOfCurrentTurn, RoundDiceOutcome.PlayerLostOneDice];
+							})();
+						this.nbDicesOfEachPlayerByPlayerId[playerIdOfCurrentTurn] += (() => {
+							switch (roundDiceOutcome) {
+								case RoundDiceOutcome.PlayerLostOneDice:
+									return -1;
+								case RoundDiceOutcome.PlayerRecoveredOneDice:
+									return 1;
+								default:
+									return 0;
+							}
+						})();
 						break;
 					default:
 						throw new Error("unknown end of round call");
@@ -143,8 +176,10 @@ export namespace PerudoGame {
 				this._endOfRound =
 					new EndOfRound(
 						playerIdOfCurrentTurn,
+						previousTurn.playerId,
 						playerChoice,
-						playerIdWhoLostOneDice);
+						impactedPlayerId,
+						roundDiceOutcome);
 				this._isOver = true;
 			}
 		};
@@ -192,10 +227,14 @@ export namespace PerudoGame {
 		public initializeNewRound(): void {
 			const previousRound = this._rounds[this._rounds.length - 1];
 			const nbDicesOfEachPlayerByPlayerId = previousRound.nbDicesOfEachPlayerByPlayerId.splice(0);
+			const nbDicesOfImpactedPlayerOfPreviousRound = nbDicesOfEachPlayerByPlayerId[this.currentRound.endOfRound.impactedPlayerId];
 			const nbPlayers = previousRound.nbPlayers +
-				(this.currentRound.endOfRound.playerIdWhoLostOneDice && nbDicesOfEachPlayerByPlayerId[this.currentRound.endOfRound.playerIdWhoLostOneDice] == 0 ? -1 : 0);
-			const firstPlayer = this.currentRound.endOfRound.playerIdWhoLostOneDice || this.currentRound.endOfRound.playerId;
-			const playersDicesDrawByPlayerId = Object.assign([], { length: nbPlayers }).fill(0).map(playerId => getDrawByThrowingDices(nbDicesOfEachPlayerByPlayerId[playerId]));
+				(nbDicesOfImpactedPlayerOfPreviousRound === 0 ? -1 : 0);
+			const playersDicesDrawByPlayerId = new Array(nbPlayers).fill(0).map(playerId => getDrawByThrowingDices(nbDicesOfEachPlayerByPlayerId[playerId]));
+			const firstPlayer =
+				nbDicesOfImpactedPlayerOfPreviousRound > 0 ?
+					this.currentRound.endOfRound.impactedPlayerId :
+					(this.currentRound.endOfRound.impactedPlayerId + 1) % this.currentRound.nbPlayers;
 			const newRound = new Round([], null, false, nbPlayers, nbDicesOfEachPlayerByPlayerId, playersDicesDrawByPlayerId, firstPlayer);
 			this._rounds.push(newRound);
 		}
