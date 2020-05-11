@@ -213,12 +213,13 @@ export namespace PerudoGame {
 		private _nbPlayers: number;
 		private _rounds: Round[];
 
-		public constructor(nbPlayers: number) {
+		public constructor(nbPlayers: number, nbDicesByPlayerId?: number[]) {
 			this._isOver = false;
 			this._nbPlayers = nbPlayers;
-			const getArrayOfLengthEqualToNbPlayers = () => new Array(nbPlayers);
-			const nbDicesOfEachPlayerByPlayerId = getArrayOfLengthEqualToNbPlayers().fill(nbStartingDicesByPlayer);
-			const playersDicesDrawByPlayerId = getArrayOfLengthEqualToNbPlayers().fill(0).map(_ => getDrawByThrowingDices(nbStartingDicesByPlayer));
+			const nbDicesOfEachPlayerByPlayerId =
+				nbDicesByPlayerId || new Array(nbPlayers).fill(nbStartingDicesByPlayer);
+			const playersDicesDrawByPlayerId =
+				nbDicesOfEachPlayerByPlayerId.map(nbStartingDices => getDrawByThrowingDices(nbStartingDices));
 			const firstRound = new Round([], null, false, this.nbPlayers, nbDicesOfEachPlayerByPlayerId, playersDicesDrawByPlayerId, 0);
 			this._rounds = [];
 			this._rounds.push(firstRound);
