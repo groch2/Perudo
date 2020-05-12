@@ -83,7 +83,12 @@ export namespace PerudoGame {
 		public playerPlays(playerChoice: PlayerDiceBid | PlayerEndOfRoundCall): void {
 			const isRoundBeginning = this._turns.length == 0;
 			const previousTurn = isRoundBeginning ? null : this._turns[this._turns.length - 1] as Turn;
-			const playerIdOfCurrentTurn = previousTurn ? (previousTurn.playerId + 1) % this.nbPlayers : 0;
+			const playerIdOfCurrentTurn =
+				!previousTurn ? 0 :
+					this.nbDicesOfEachPlayerByPlayerId
+						.concat(this.nbDicesOfEachPlayerByPlayerId)
+						.findIndex((nbDicesOfPlayerId, playerId) =>
+							playerId > previousTurn.playerId && nbDicesOfPlayerId > 0) % this.nbPlayers;
 			if (isDiceBid(playerChoice)) {
 				if (this.isFirstPlayerOfCurrentRoundPlafico) {
 					if (playerChoice.diceFace > previousTurn.bid.diceFace === playerChoice.diceQuantity > previousTurn.bid.diceQuantity) {
@@ -142,12 +147,11 @@ export namespace PerudoGame {
 				switch (playerChoice) {
 					case PlayerEndOfRoundCall.Bluff:
 						roundDiceOutcome = RoundDiceOutcome.PlayerLostOneDice;
-						const [looserPlayerId, positionOfPlayerImpactedByDiceOutcome] =
+						impactedPlayerId =
 							nbDicesMatchingLastBid < previousTurn.bid.diceQuantity ?
-								[previousTurn.playerId, PlayerPosition.BeforeLast] :
-								[playerIdOfCurrentTurn, PlayerPosition.Last];
-						this.nbDicesOfEachPlayerByPlayerId[looserPlayerId]--;
-						impactedPlayerId = looserPlayerId;
+								previousTurn.playerId :
+								playerIdOfCurrentTurn;
+						this.nbDicesOfEachPlayerByPlayerId[impactedPlayerId]--;
 						break;
 					case PlayerEndOfRoundCall.ExactMatch:
 						const isExactMatch = previousTurn.bid.diceQuantity === nbDicesMatchingLastBid;
@@ -155,20 +159,15 @@ export namespace PerudoGame {
 						[impactedPlayerId, roundDiceOutcome] =
 							(() => {
 								if (isExactMatch) {
-									return nbDicesOfLastPlayer === nbStartingDicesByPlayer ? [undefined, undefined] : [playerIdOfCurrentTurn, RoundDiceOutcome.PlayerRecoveredOneDice];
+									if (nbDicesOfLastPlayer < nbStartingDicesByPlayer) {
+										this.nbDicesOfEachPlayerByPlayerId[playerIdOfCurrentTurn]++;
+										return [playerIdOfCurrentTurn, RoundDiceOutcome.PlayerRecoveredOneDice];
+									}
+									return [undefined, undefined];
 								}
+								this.nbDicesOfEachPlayerByPlayerId[playerIdOfCurrentTurn]--;
 								return [playerIdOfCurrentTurn, RoundDiceOutcome.PlayerLostOneDice];
 							})();
-						this.nbDicesOfEachPlayerByPlayerId[playerIdOfCurrentTurn] += (() => {
-							switch (roundDiceOutcome) {
-								case RoundDiceOutcome.PlayerLostOneDice:
-									return -1;
-								case RoundDiceOutcome.PlayerRecoveredOneDice:
-									return 1;
-								default:
-									return 0;
-							}
-						})();
 						break;
 					default:
 						throw new Error("unknown end of round call");
@@ -226,17 +225,14 @@ export namespace PerudoGame {
 		}
 
 		public initializeNewRound(): void {
-			const previousRound = this._rounds[this._rounds.length - 1];
-			const nbDicesOfEachPlayerByPlayerId = previousRound.nbDicesOfEachPlayerByPlayerId.splice(0);
-			const nbDicesOfImpactedPlayerOfPreviousRound = nbDicesOfEachPlayerByPlayerId[this.currentRound.endOfRound.impactedPlayerId];
-			const nbPlayers = previousRound.nbPlayers +
-				(nbDicesOfImpactedPlayerOfPreviousRound === 0 ? -1 : 0);
-			const playersDicesDrawByPlayerId = new Array(nbPlayers).fill(0).map(playerId => getDrawByThrowingDices(nbDicesOfEachPlayerByPlayerId[playerId]));
-			const firstPlayer =
-				nbDicesOfImpactedPlayerOfPreviousRound > 0 ?
-					this.currentRound.endOfRound.impactedPlayerId :
-					(this.currentRound.endOfRound.impactedPlayerId + 1) % this.currentRound.nbPlayers;
-			const newRound = new Round([], null, false, nbPlayers, nbDicesOfEachPlayerByPlayerId, playersDicesDrawByPlayerId, firstPlayer);
+			const nbDicesOfEachPlayerByPlayerId = this.currentRound.nbDicesOfEachPlayerByPlayerId.splice(0);
+			const playersDicesDrawByPlayerId = new Array(this._nbPlayers).fill(0).map(playerId => getDrawByThrowingDices(nbDicesOfEachPlayerByPlayerId[playerId]));
+			const firstPlayerId =
+				nbDicesOfEachPlayerByPlayerId
+					.concat(nbDicesOfEachPlayerByPlayerId)
+					.findIndex((nbDicesOfPlayerId, playerId) =>
+						playerId >= this.currentRound.endOfRound.impactedPlayerId && nbDicesOfPlayerId > 0) % this.nbPlayers;
+			const newRound = new Round([], null, false, this._nbPlayers, nbDicesOfEachPlayerByPlayerId, playersDicesDrawByPlayerId, firstPlayerId);
 			this._rounds.push(newRound);
 		}
 

@@ -4,11 +4,12 @@ const nbPlayers = 3;
 PerudoGame.throwingDicesEnabled = false;
 
 (function secondPlayerLoosesTheRoundAndIsOutOfDice() {
-    const game = new PerudoGame.Game(nbPlayers, [PerudoGame.nbStartingDicesByPlayer, 1, PerudoGame.nbStartingDicesByPlayer]);
+    const [nbDicesOfPlayer0, nbDicesOfPlayer2] = [2, 1];
+    const game = new PerudoGame.Game(nbPlayers, [2, 1, 1]);
 
-    game.currentRound.playersDicesDrawByPlayerId[0].set(<any>PerudoGame.DiceFace[PerudoGame.DiceFace.Two], 2);
+    game.currentRound.playersDicesDrawByPlayerId[0].set(<any>PerudoGame.DiceFace[PerudoGame.DiceFace.Two], nbDicesOfPlayer0);
     game.currentRound.playersDicesDrawByPlayerId[1].set(<any>PerudoGame.DiceFace[PerudoGame.DiceFace.Three], 1);
-    game.currentRound.playersDicesDrawByPlayerId[2].set(<any>PerudoGame.DiceFace[PerudoGame.DiceFace.Four], 1);
+    game.currentRound.playersDicesDrawByPlayerId[2].set(<any>PerudoGame.DiceFace[PerudoGame.DiceFace.Four], nbDicesOfPlayer2);
 
     console.log({ totalDicesQuantity: game.currentRound.getTotalPositiveNbDiceByFaceName() });
 
@@ -18,14 +19,13 @@ PerudoGame.throwingDicesEnabled = false;
 
     console.log({ nbDicesOfEachPlayerByPlayerId: game.currentRound.nbDicesOfEachPlayerByPlayerId });
 
-    for (let unimpactedPlayerId of [0, 2]) {
-        console.assert(game.currentRound.nbDicesOfEachPlayerByPlayerId[unimpactedPlayerId] == PerudoGame.nbStartingDicesByPlayer, `player ${unimpactedPlayerId} should have 5 dices`);
-    }
+    console.assert(game.currentRound.nbDicesOfEachPlayerByPlayerId[0] == nbDicesOfPlayer0, `player 0 should have ${nbDicesOfPlayer0} dices`);
     console.assert(game.currentRound.nbDicesOfEachPlayerByPlayerId[1] == 0, "player 1 should have 0 dices");
+    console.assert(game.currentRound.nbDicesOfEachPlayerByPlayerId[2] == nbDicesOfPlayer2, `player 2 should have ${nbDicesOfPlayer2} dices`);
 
     game.initializeNewRound();
 
     console.log({ firstPlayer: game.currentRound.firstPlayerId });
 
-    console.assert(game.currentRound.firstPlayerId == 1, "the first player of the new round should be player with id 1.");
+    console.assert(game.currentRound.firstPlayerId == 2, "the first player of the new round should be player with id 2.");
 })();
