@@ -25,7 +25,7 @@ PerudoGame.throwingDicesEnabled = false;
 
     game.initializeNewRound();
 
-    console.log({ firstPlayer: game.currentRound.firstPlayerId });
+    console.log({ firstPlayerOfSecondRound: game.currentRound.firstPlayerId });
 
     console.assert(game.currentRound.firstPlayerId == 2, "the first player of the new round should be player with id 2.");
 })();
