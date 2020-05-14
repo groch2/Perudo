@@ -6,7 +6,6 @@ PerudoGame.throwingDicesEnabled = false;
 (function thePlayerWithHighestIdIsOutOfTheGame() {
     const nbPlayers = 3;
     const nbDicesByPlayerId = new Array(nbPlayers).fill(2);
-    const nbLastPlayers = 3;
     nbDicesByPlayerId[nbDicesByPlayerId.length - 1] = 0;
     const game = new PerudoGame.Game(nbDicesByPlayerId.length, nbDicesByPlayerId);
 
