@@ -14,10 +14,12 @@
     },
     "files": [
         "PerudoGame.ts",
-        "ConsoleMode.ts",
-        "test.ts"
+        "ConsoleMode.ts"
     ],
     "include": [
         "test/*.ts"
+    ],
+    "exclude": [
+        "test/*.test.ts"
     ]
 }

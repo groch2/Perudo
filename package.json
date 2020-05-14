@@ -1,0 +1,37 @@
+{
+  "name": "perudo-game",
+  "version": "1.0.0",
+  "description": "Perudo game engine and front interface for local computer console mode and network mode",
+  "main": "test/test.cmd",
+  "directories": {
+    "test": "test"
+  },
+  "scripts": {
+    "test": "jest"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/grroch/Perudo.git"
+  },
+  "keywords": [
+    "Perudo",
+    "board game",
+    "dice game"
+  ],
+  "author": "roch.deschaseaux@gmail.com",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/grroch/Perudo/issues"
+  },
+  "homepage": "https://github.com/grroch/Perudo#readme",
+  "devDependencies": {
+    "@babel/core": "^7.9.6",
+    "@babel/preset-env": "^7.9.6",
+    "@babel/preset-typescript": "^7.9.0",
+    "babel-jest": "^26.0.1",
+    "jest": "^26.0.1"
+  },
+  "dependencies": {
+    "@types/jest": "^25.2.2"
+  }
+}

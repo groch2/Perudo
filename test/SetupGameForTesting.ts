@@ -1,7 +1,7 @@
-import { PerudoGame } from "../PerudoGame";
+import * as PerudoGame from "../PerudoGame";
 
 const nbPlayers = 2;
-PerudoGame.throwingDicesEnabled = false;
+PerudoGame.disableThrowingDices();
 
 (function secondPlayerLoosesTheRoundAndIsOutOfDice() {
     const game = new PerudoGame.Game(nbPlayers);
