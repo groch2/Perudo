@@ -4,8 +4,9 @@ PerudoGame.throwingDicesEnabled = false;
 
 /// When there is n players, and the player with id (n - 2) plays, and the player with id (n - 1) is out of the game, then the next player should be the player with id 0
 (function thePlayerWithHighestIdIsOutOfTheGame() {
-    const nbPlayers = 5;
+    const nbPlayers = 3;
     const nbDicesByPlayerId = new Array(nbPlayers).fill(2);
+    const nbLastPlayers = 3;
     nbDicesByPlayerId[nbDicesByPlayerId.length - 1] = 0;
     const game = new PerudoGame.Game(nbDicesByPlayerId.length, nbDicesByPlayerId);
 
