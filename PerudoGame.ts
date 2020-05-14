@@ -281,7 +281,7 @@ export namespace PerudoGame {
 
 	export let throwingDicesEnabled = true;
 
-	/// randomly generate a draw for a given number of perudo dices
+	/// randomly generate a draw of dices for a given number of dices
 	export function getDrawByThrowingDices(nbDices: number): Map<DiceFace, number> {
 		let nbDiceByFace = diceFacesNames.reduce((state, item) => state.set(item, 0), new Map());
 		if (!throwingDicesEnabled) {
