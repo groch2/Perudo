@@ -14,4 +14,4 @@ for (let turn = 0; turn < nbTurnsBeforeLast; turn++) {
 game.currentRound.playerPlays(PerudoGame.PlayerEndOfRoundCall.Bluff);
 console.log(game.currentRound.endOfRound);
 
-console.log(game.getNbDicesOfEachPlayerByPlayerId());
+console.log(game.nbDicesByPlayerId);

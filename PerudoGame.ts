@@ -61,7 +61,14 @@ export namespace PerudoGame {
 		}
 
 		public get nextPlayerId() {
-			return (this.firstPlayerId + this._turns.length) % this.nbPlayers;
+			const isRoundBeginning = this._turns.length == 0;
+			const previousTurn = isRoundBeginning ? null : this.lastTurn as Turn;
+			return (
+				!previousTurn ? 0 :
+					this.nbDicesOfEachPlayerByPlayerId
+						.concat(this.nbDicesOfEachPlayerByPlayerId)
+						.findIndex((nbDicesOfPlayerId, playerId) =>
+							playerId > previousTurn.playerId && nbDicesOfPlayerId > 0) % this.nbPlayers);
 		}
 
 		public get turns() {
@@ -82,13 +89,7 @@ export namespace PerudoGame {
 
 		public playerPlays(playerChoice: PlayerDiceBid | PlayerEndOfRoundCall): void {
 			const isRoundBeginning = this._turns.length == 0;
-			const previousTurn = isRoundBeginning ? null : this._turns[this._turns.length - 1] as Turn;
-			const playerIdOfCurrentTurn =
-				!previousTurn ? 0 :
-					this.nbDicesOfEachPlayerByPlayerId
-						.concat(this.nbDicesOfEachPlayerByPlayerId)
-						.findIndex((nbDicesOfPlayerId, playerId) =>
-							playerId > previousTurn.playerId && nbDicesOfPlayerId > 0) % this.nbPlayers;
+			const previousTurn = isRoundBeginning ? null : this.lastTurn as Turn;
 			if (isDiceBid(playerChoice)) {
 				if (this.isFirstPlayerOfCurrentRoundPlafico) {
 					if (playerChoice.diceFace > previousTurn.bid.diceFace === playerChoice.diceQuantity > previousTurn.bid.diceQuantity) {
@@ -129,7 +130,7 @@ export namespace PerudoGame {
 				}
 				this._turns.push(
 					new Turn(
-						playerIdOfCurrentTurn,
+						this.nextPlayerId,
 						isRoundBeginning ? 0 : previousTurn.turnId + 1,
 						playerChoice));
 			}
@@ -150,23 +151,23 @@ export namespace PerudoGame {
 						impactedPlayerId =
 							nbDicesMatchingLastBid < previousTurn.bid.diceQuantity ?
 								previousTurn.playerId :
-								playerIdOfCurrentTurn;
+								this.nextPlayerId;
 						this.nbDicesOfEachPlayerByPlayerId[impactedPlayerId]--;
 						break;
 					case PlayerEndOfRoundCall.ExactMatch:
 						const isExactMatch = previousTurn.bid.diceQuantity === nbDicesMatchingLastBid;
-						const nbDicesOfLastPlayer = this.nbDicesOfEachPlayerByPlayerId[playerIdOfCurrentTurn];
+						const nbDicesOfLastPlayer = this.nbDicesOfEachPlayerByPlayerId[this.nextPlayerId];
 						[impactedPlayerId, roundDiceOutcome] =
 							(() => {
 								if (isExactMatch) {
 									if (nbDicesOfLastPlayer < nbStartingDicesByPlayer) {
-										this.nbDicesOfEachPlayerByPlayerId[playerIdOfCurrentTurn]++;
-										return [playerIdOfCurrentTurn, RoundDiceOutcome.PlayerRecoveredOneDice];
+										this.nbDicesOfEachPlayerByPlayerId[this.nextPlayerId]++;
+										return [this.nextPlayerId, RoundDiceOutcome.PlayerRecoveredOneDice];
 									}
 									return [undefined, undefined];
 								}
-								this.nbDicesOfEachPlayerByPlayerId[playerIdOfCurrentTurn]--;
-								return [playerIdOfCurrentTurn, RoundDiceOutcome.PlayerLostOneDice];
+								this.nbDicesOfEachPlayerByPlayerId[this.nextPlayerId]--;
+								return [this.nextPlayerId, RoundDiceOutcome.PlayerLostOneDice];
 							})();
 						break;
 					default:
@@ -174,7 +175,7 @@ export namespace PerudoGame {
 				}
 				this._endOfRound =
 					new EndOfRound(
-						playerIdOfCurrentTurn,
+						this.nextPlayerId,
 						previousTurn.playerId,
 						playerChoice,
 						impactedPlayerId,
@@ -256,7 +257,7 @@ export namespace PerudoGame {
 			this.currentRound.playerPlays(playerChoice);
 		}
 
-		public getNbDicesOfEachPlayerByPlayerId() {
+		public get nbDicesByPlayerId() {
 			return this.currentRound.nbDicesOfEachPlayerByPlayerId;
 		}
 
