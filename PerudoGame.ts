@@ -65,10 +65,11 @@ export namespace PerudoGame {
 			const previousTurn = isRoundBeginning ? null : this.lastTurn as Turn;
 			return (
 				!previousTurn ? 0 :
-					this.nbDicesOfEachPlayerByPlayerId
+					(this.nbDicesOfEachPlayerByPlayerId
 						.concat(this.nbDicesOfEachPlayerByPlayerId)
-						.findIndex((nbDicesOfPlayerId, playerId) =>
-							playerId > previousTurn.playerId && nbDicesOfPlayerId > 0) % this.nbPlayers);
+						.slice(previousTurn.playerId + 1)
+						.findIndex(nbDicesOfPlayerId => nbDicesOfPlayerId > 0)
+						+ previousTurn.playerId + 1) % this.nbPlayers);
 		}
 
 		public get turns() {

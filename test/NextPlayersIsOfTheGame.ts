@@ -16,11 +16,15 @@ PerudoGame.throwingDicesEnabled = false;
 
     console.log({ firstPlayer: nextPlayerId });
 
-    for (let turn = 0; turn < nbDicesByPlayerId.length - 1; turn++) {
+    for (let i = 0; i < nbDicesByPlayerId.length - 1; i++) {
         console.log("player plays...");
-        game.playerPlays({ diceFace: PerudoGame.DiceFace.Two, diceQuantity: turn + 1 });
+        game.playerPlays({ diceFace: PerudoGame.DiceFace.Two, diceQuantity: i + 1 });
         nextPlayerId = game.currentRound.nextPlayerId;
         console.log({ nextPlayerId: nextPlayerId });
+        const expectedPlayerId = i + 1;
+        if (i < nbDicesByPlayerId.length - 2) {
+            console.assert(nextPlayerId === expectedPlayerId, `next playerId should be ${expectedPlayerId}`);
+        }
     }
 
     console.assert(nextPlayerId === 0, "next playerId should be 0");
