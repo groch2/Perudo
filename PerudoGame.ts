@@ -58,18 +58,12 @@ export namespace PerudoGame {
 			this.isFirstPlayerOfCurrentRoundPlafico =
 				[...playersDicesDrawByPlayerId[firstPlayerId].values()]
 					.reduce((firstPlayerDicesTotal, playerNbDicesOfFace) => firstPlayerDicesTotal + playerNbDicesOfFace) === 1;
+			this._nextPlayerId = 0;
 		}
 
+		private _nextPlayerId: number;
 		public get nextPlayerId() {
-			const isRoundBeginning = this._turns.length == 0;
-			const previousTurn = isRoundBeginning ? null : this.lastTurn as Turn;
-			return (
-				!previousTurn ? 0 :
-					(this.nbDicesOfEachPlayerByPlayerId
-						.concat(this.nbDicesOfEachPlayerByPlayerId)
-						.slice(previousTurn.playerId + 1)
-						.findIndex(nbDicesOfPlayerId => nbDicesOfPlayerId > 0)
-						+ previousTurn.playerId + 1) % this.nbPlayers);
+			return this._nextPlayerId;
 		}
 
 		public get turns() {
@@ -91,6 +85,13 @@ export namespace PerudoGame {
 		public playerPlays(playerChoice: PlayerDiceBid | PlayerEndOfRoundCall): void {
 			const isRoundBeginning = this._turns.length == 0;
 			const previousTurn = isRoundBeginning ? null : this.lastTurn as Turn;
+			this._nextPlayerId =
+				!previousTurn ? 1 :
+					(this.nbDicesOfEachPlayerByPlayerId
+						.concat(this.nbDicesOfEachPlayerByPlayerId)
+						.slice(previousTurn.playerId + 1)
+						.findIndex(nbDicesOfPlayerId => nbDicesOfPlayerId > 0)
+						+ previousTurn.playerId + 1) % this.nbPlayers;
 			if (isDiceBid(playerChoice)) {
 				if (this.isFirstPlayerOfCurrentRoundPlafico) {
 					if (playerChoice.diceFace > previousTurn.bid.diceFace === playerChoice.diceQuantity > previousTurn.bid.diceQuantity) {
@@ -217,12 +218,14 @@ export namespace PerudoGame {
 		public constructor(nbPlayers: number, nbDicesByPlayerId?: number[]) {
 			this._isOver = false;
 			this._nbPlayers = nbPlayers;
+
 			const nbDicesOfEachPlayerByPlayerId =
 				nbDicesByPlayerId || new Array(nbPlayers).fill(nbStartingDicesByPlayer);
 			const playersDicesDrawByPlayerId =
 				nbDicesOfEachPlayerByPlayerId.map(nbStartingDices => getDrawByThrowingDices(nbStartingDices));
-			const firstRound = new Round([], null, false, this.nbPlayers, nbDicesOfEachPlayerByPlayerId, playersDicesDrawByPlayerId, 0);
+
 			this._rounds = [];
+			const firstRound = new Round([], null, false, this.nbPlayers, nbDicesOfEachPlayerByPlayerId, playersDicesDrawByPlayerId, 0);
 			this._rounds.push(firstRound);
 		}
 
@@ -240,6 +243,10 @@ export namespace PerudoGame {
 
 		public get currentRound() {
 			return this._rounds[this._rounds.length - 1];
+		}
+
+		public get nextPlayerId() {
+			return this.currentRound.nextPlayerId;
 		}
 
 		public get previousRounds() {

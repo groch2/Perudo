@@ -12,20 +12,19 @@ PerudoGame.throwingDicesEnabled = false;
 
     console.log({ nbDicesByPlayerId: game.nbDicesByPlayerId });
 
-    let nextPlayerId = game.currentRound.nextPlayerId;
-
-    console.log({ firstPlayer: nextPlayerId });
+    console.log({ firstPlayer: game.nextPlayerId });
 
     for (let i = 0; i < nbDicesByPlayerId.length - 1; i++) {
         console.log("player plays...");
         game.playerPlays({ diceFace: PerudoGame.DiceFace.Two, diceQuantity: i + 1 });
-        nextPlayerId = game.currentRound.nextPlayerId;
-        console.log({ nextPlayerId: nextPlayerId });
+
+        console.log({ nextPlayerId: game.nextPlayerId });
+
         const expectedPlayerId = i + 1;
         if (i < nbDicesByPlayerId.length - 2) {
-            console.assert(nextPlayerId === expectedPlayerId, `next playerId should be ${expectedPlayerId}`);
+            console.assert(game.nextPlayerId === expectedPlayerId, `next playerId should be ${expectedPlayerId}`);
         }
     }
 
-    console.assert(nextPlayerId === 0, "next playerId should be 0");
+    console.assert(game.nextPlayerId === 0, "next playerId should be 0");
 })();
