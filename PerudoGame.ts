@@ -94,7 +94,7 @@ export class Round {
 					+ currentPlayerId + 1) % this.nbPlayers;
 		if (isDiceBid(playerChoice)) {
 			if (this.isFirstPlayerOfCurrentRoundPlafico) {
-				if (playerChoice.diceFace > previousTurn.bid.diceFace === playerChoice.diceQuantity > previousTurn.bid.diceQuantity) {
+				if (playerChoice.diceFace > previousTurn.bid.diceFace && playerChoice.diceQuantity > previousTurn.bid.diceQuantity) {
 					throw new Error("in a round where a the first player is plafico, a bid must be of greater quantity OR greater value than the previous one, and not both");
 				}
 			}
@@ -145,7 +145,6 @@ export class Round {
 				this.playersDicesDrawByPlayerId.reduce((diceTotal, playerDices) => {
 					return diceTotal + playerDices.get(<any>DiceFace[previousTurn.bid.diceFace]) + (countPacosAsJoker ? playerDices.get(<any>DiceFace[DiceFace.Paco]) : 0);
 				}, 0);
-			console.debug({ nbDicesMatchingLastBid });
 			let impactedPlayerId: undefined | number;
 			let roundDiceOutcome: RoundDiceOutcome | undefined;
 			switch (playerChoice) {
