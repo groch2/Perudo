@@ -111,8 +111,12 @@ export class Round {
 								throw new Error("the quantity of a bid of pacos following a bid of other value than paco must be superior to the half of the previous bid rounded up");
 							}
 						}
-						else if (playerChoice.diceFace > previousTurn.bid.diceFace === playerChoice.diceQuantity > previousTurn.bid.diceQuantity) {
-							throw new Error("a bid of other value than paco following a bid of other value than paco must be of greater quantity OR greater value, and not both");
+						else {
+							const diceFaceDiff = playerChoice.diceFace - previousTurn.bid.diceFace;
+							const diceQuantityDiff = playerChoice.diceQuantity - previousTurn.bid.diceQuantity;
+							if (!(diceFaceDiff == 0 && diceQuantityDiff > 0 || diceFaceDiff > 0 && diceQuantityDiff == 0)) {
+								throw new Error("a bid of other value than paco following a bid of other value than paco must be of greater quantity OR greater value, and not both");
+							}
 						}
 					}
 					else {
