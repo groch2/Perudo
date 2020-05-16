@@ -46,6 +46,15 @@ function isDiceBid(playerChoice: PlayerDiceBid | PlayerEndOfRoundCall): playerCh
 	return (playerChoice as PlayerDiceBid).diceFace !== undefined;
 }
 
+function getNextPlayerId(nbDiceByPlayerId: number[], firstPossibleNextPlayerId: number): number {
+	return (
+		(nbDiceByPlayerId
+			.concat(nbDiceByPlayerId)
+			.slice(firstPossibleNextPlayerId)
+			.findIndex(nbDicesOfPlayerId => nbDicesOfPlayerId > 0)
+			+ firstPossibleNextPlayerId) % nbDiceByPlayerId.length);
+}
+
 export class Round {
 	// if the first player of the round has only one dice left, then he or she is plafico and the pacos does not count has jokers during this round
 	public readonly isFirstPlayerOfCurrentRoundPlafico: boolean;
@@ -90,11 +99,7 @@ export class Round {
 		const currentPlayerId = this._nextPlayerId;
 		this._nextPlayerId =
 			!previousTurn ? 1 :
-				(this.nbDicesOfEachPlayerByPlayerId
-					.concat(this.nbDicesOfEachPlayerByPlayerId)
-					.slice(currentPlayerId + 1)
-					.findIndex(nbDicesOfPlayerId => nbDicesOfPlayerId > 0)
-					+ currentPlayerId + 1) % this.nbPlayers;
+				getNextPlayerId(this.nbDicesOfEachPlayerByPlayerId, currentPlayerId + 1);
 		if (isDiceBid(playerChoice)) {
 			if (this.isFirstPlayerOfCurrentRoundPlafico) {
 				if (playerChoice.diceFace > previousTurn.bid.diceFace && playerChoice.diceQuantity > previousTurn.bid.diceQuantity) {
@@ -243,11 +248,7 @@ export class Game {
 				.fill(0)
 				.map(playerId => getDrawByThrowingDices(nbDicesOfEachPlayerByPlayerId[playerId]));
 		const firstPlayerId =
-			(nbDicesOfEachPlayerByPlayerId
-				.concat(nbDicesOfEachPlayerByPlayerId)
-				.slice(this.currentRound.endOfRound.impactedPlayerId)
-				.findIndex((nbDicesOfPlayerId, ) =>
-					nbDicesOfPlayerId > 0) + this.currentRound.endOfRound.impactedPlayerId) % this.nbPlayers;
+			getNextPlayerId(nbDicesOfEachPlayerByPlayerId, this.currentRound.endOfRound.impactedPlayerId);
 		const newRound = new Round([], null, false, this._nbPlayers, nbDicesOfEachPlayerByPlayerId, playersDicesDrawByPlayerId, firstPlayerId);
 		this._rounds.push(newRound);
 	}
