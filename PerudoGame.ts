@@ -13,7 +13,7 @@ export enum RoundDiceOutcome { PlayerLostOneDice, PlayerRecoveredOneDice }
 export class Last2PlayersOfRound { lastPlayerId: number; beforeLastPlayerId: number }
 
 export class ErrorMessages {
-	public static BID_PACO_AFTER_NON_PACO = "the quantity of a bid of pacos following a bid of other dice face than paco must be superior to the half of the previous bid rounded up";
+	public static readonly BID_PACO_AFTER_NON_PACO = "the quantity of a bid of pacos following a bid of other dice face than paco must be superior to the half of the previous bid rounded up";
 }
 
 export class Turn {
