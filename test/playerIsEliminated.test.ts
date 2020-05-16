@@ -1,6 +1,6 @@
 import * as PerudoGame from "../PerudoGame";
 
-test('Second players looses the round and is out of dice', () => {
+test('If the second players looses the round and is out of dice and the third player has at least one dice, then the third player is the first player of the next round', () => {
     PerudoGame.disableThrowingDices();
 
     const nbDicesByPlayer = [2, 1, 1];
@@ -25,4 +25,31 @@ test('Second players looses the round and is out of dice', () => {
 
     expect(game.currentRound.firstPlayerId)
         .toBe(2);
+});
+
+test('If the second players looses the round and is out of dice and the third player does not have any dice left and the fourth player has at least one dice, then the fourth player is the first player of the next round', () => {
+    PerudoGame.disableThrowingDices();
+
+    const nbDicesByPlayer = [2, 1, 0, 1];
+    const game = new PerudoGame.Game(nbDicesByPlayer.length, nbDicesByPlayer);
+
+    game.currentRound.playersDicesDrawByPlayerId[0].set(PerudoGame.DiceFace.Two, nbDicesByPlayer[0]);
+    game.currentRound.playersDicesDrawByPlayerId[1].set(PerudoGame.DiceFace.Three, nbDicesByPlayer[1]);
+    game.currentRound.playersDicesDrawByPlayerId[3].set(PerudoGame.DiceFace.Four, nbDicesByPlayer[3]);
+
+    game.playerPlays({ diceFace: PerudoGame.DiceFace.Two, diceQuantity: 2 });
+    game.playerPlays({ diceFace: PerudoGame.DiceFace.Two, diceQuantity: 3 });
+    game.playerPlays(PerudoGame.PlayerEndOfRoundCall.Bluff);
+
+    expect(game.currentRound.nbDicesOfEachPlayerByPlayerId[0])
+        .toBe(nbDicesByPlayer[0]);
+    expect(game.currentRound.nbDicesOfEachPlayerByPlayerId[1])
+        .toBe(0);
+    expect(game.currentRound.nbDicesOfEachPlayerByPlayerId[3])
+        .toBe(nbDicesByPlayer[3]);
+
+    game.initializeNewRound();
+
+    expect(game.currentRound.firstPlayerId)
+        .toBe(3);
 });

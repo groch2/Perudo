@@ -48,7 +48,7 @@ function isDiceBid(playerChoice: PlayerDiceBid | PlayerEndOfRoundCall): playerCh
 
 export class Round {
 	// if the first player of the round has only one dice left, then he or she is plafico and the pacos does not count has jokers during this round
-	readonly isFirstPlayerOfCurrentRoundPlafico: boolean;
+	public readonly isFirstPlayerOfCurrentRoundPlafico: boolean;
 
 	constructor(
 		private _turns: Turn[],
@@ -59,8 +59,7 @@ export class Round {
 		readonly playersDicesDrawByPlayerId: Map<DiceFace, number>[],
 		readonly firstPlayerId: number) {
 		this.isFirstPlayerOfCurrentRoundPlafico =
-			[...playersDicesDrawByPlayerId[firstPlayerId].values()]
-				.reduce((firstPlayerDicesTotal, playerNbDicesOfFace) => firstPlayerDicesTotal + playerNbDicesOfFace) === 1;
+			nbDicesOfEachPlayerByPlayerId[firstPlayerId] === 1;
 		this._nextPlayerId = 0;
 	}
 
@@ -239,12 +238,16 @@ export class Game {
 
 	public initializeNewRound(): void {
 		const nbDicesOfEachPlayerByPlayerId = this.currentRound.nbDicesOfEachPlayerByPlayerId.splice(0);
-		const playersDicesDrawByPlayerId = new Array(this._nbPlayers).fill(0).map(playerId => getDrawByThrowingDices(nbDicesOfEachPlayerByPlayerId[playerId]));
+		const playersDicesDrawByPlayerId =
+			new Array(this._nbPlayers)
+				.fill(0)
+				.map(playerId => getDrawByThrowingDices(nbDicesOfEachPlayerByPlayerId[playerId]));
 		const firstPlayerId =
-			nbDicesOfEachPlayerByPlayerId
+			(nbDicesOfEachPlayerByPlayerId
 				.concat(nbDicesOfEachPlayerByPlayerId)
-				.findIndex((nbDicesOfPlayerId, playerId) =>
-					playerId >= this.currentRound.endOfRound.impactedPlayerId && nbDicesOfPlayerId > 0) % this.nbPlayers;
+				.slice(this.currentRound.endOfRound.impactedPlayerId)
+				.findIndex((nbDicesOfPlayerId, ) =>
+					nbDicesOfPlayerId > 0) + this.currentRound.endOfRound.impactedPlayerId) % this.nbPlayers;
 		const newRound = new Round([], null, false, this._nbPlayers, nbDicesOfEachPlayerByPlayerId, playersDicesDrawByPlayerId, firstPlayerId);
 		this._rounds.push(newRound);
 	}
