@@ -10,8 +10,6 @@ test('Second players looses the round and is out of dice', () => {
     game.currentRound.playersDicesDrawByPlayerId[1].set(PerudoGame.DiceFace.Three, nbDicesByPlayer[1]);
     game.currentRound.playersDicesDrawByPlayerId[2].set(PerudoGame.DiceFace.Four, nbDicesByPlayer[2]);
 
-    console.debug(game.getDicesFacesOfCurrentRoundByPlayerId());
-
     game.playerPlays({ diceFace: PerudoGame.DiceFace.Two, diceQuantity: 2 });
     game.playerPlays({ diceFace: PerudoGame.DiceFace.Two, diceQuantity: 3 });
     game.playerPlays(PerudoGame.PlayerEndOfRoundCall.Bluff);
