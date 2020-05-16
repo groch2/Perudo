@@ -6,7 +6,6 @@ test('When first player bids on a dice face other than paco, and then second pla
     const nbPlayers = 2;
     const game = new PerudoGame.Game(nbPlayers);
 
-    console.debug("regular bid");
     game.playerPlays({ diceFace: PerudoGame.DiceFace.Two, diceQuantity: 1 });
     game.playerPlays({ diceFace: PerudoGame.DiceFace.Two, diceQuantity: 2 });
 });
@@ -17,7 +16,6 @@ test('When first player bids on a dice face other than paco, and then second pla
     const nbPlayers = 2;
     const game = new PerudoGame.Game(nbPlayers);
 
-    console.debug("regular bid");
     game.playerPlays({ diceFace: PerudoGame.DiceFace.Two, diceQuantity: 1 });
     game.playerPlays({ diceFace: PerudoGame.DiceFace.Three, diceQuantity: 1 });
 });
@@ -28,7 +26,6 @@ test('When first player bids on a dice face other than paco, and then second pla
     const nbPlayers = 2;
     const game = new PerudoGame.Game(nbPlayers);
 
-    console.debug("error bid");
     game.playerPlays({ diceFace: PerudoGame.DiceFace.Two, diceQuantity: 1 });
     expect(() => game.playerPlays({ diceFace: PerudoGame.DiceFace.Three, diceQuantity: 2 }))
         .toThrow();
@@ -41,7 +38,6 @@ test('When first player bids on a dice face other than paco, and then second pla
     const game = new PerudoGame.Game(nbPlayers);
     const diceBid = { diceFace: PerudoGame.DiceFace.Two, diceQuantity: 1 };
 
-    console.debug("error bid");
     game.playerPlays(diceBid);
     expect(() => game.playerPlays(diceBid))
         .toThrow();
@@ -53,7 +49,6 @@ test('When first player bids on a dice face other than paco, and then second pla
     const nbPlayers = 2;
     const game = new PerudoGame.Game(nbPlayers);
 
-    console.debug("error bid");
     game.playerPlays({ diceFace: PerudoGame.DiceFace.Three, diceQuantity: 1 });
     expect(() => game.playerPlays({ diceFace: PerudoGame.DiceFace.Two, diceQuantity: 2 }))
         .toThrow();
@@ -65,7 +60,6 @@ test('When first player bids on a dice face other than paco, and then second pla
     const nbPlayers = 2;
     const game = new PerudoGame.Game(nbPlayers);
 
-    console.debug("error bid");
     game.playerPlays({ diceFace: PerudoGame.DiceFace.Two, diceQuantity: 2 });
     expect(() => game.playerPlays({ diceFace: PerudoGame.DiceFace.Three, diceQuantity: 1 }))
         .toThrow();
@@ -77,7 +71,6 @@ test('When first player bids on a dice face other than paco, and then second pla
     const nbPlayers = 2;
     const game = new PerudoGame.Game(nbPlayers);
 
-    console.debug("error bid");
     game.playerPlays({ diceFace: PerudoGame.DiceFace.Three, diceQuantity: 2 });
     expect(() => game.playerPlays({ diceFace: PerudoGame.DiceFace.Two, diceQuantity: 1 }))
         .toThrow();
