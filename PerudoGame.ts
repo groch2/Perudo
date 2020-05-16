@@ -95,7 +95,7 @@ export class Round {
 		if (isDiceBid(playerChoice)) {
 			if (this.isFirstPlayerOfCurrentRoundPlafico) {
 				if (playerChoice.diceFace > previousTurn.bid.diceFace && playerChoice.diceQuantity > previousTurn.bid.diceQuantity) {
-					throw new Error("in a round where a the first player is plafico, a bid must be of greater quantity OR greater value than the previous one, and not both");
+					throw new Error("in a round where the first player is plafico, a bid must be of greater quantity OR greater value than the previous one, and not both");
 				}
 			}
 			else {
@@ -108,14 +108,14 @@ export class Round {
 					if (previousTurn.bid.diceFace !== DiceFace.Paco) {
 						if (playerChoice.diceFace === DiceFace.Paco) {
 							if (playerChoice.diceQuantity < Math.ceil(previousTurn.bid.diceQuantity / 2)) {
-								throw new Error("the quantity of a bid of pacos following a bid of other value than paco must be superior to the half of the previous bid rounded up");
+								throw new Error("the quantity of a bid of pacos following a bid of other dice face than paco must be superior to the half of the previous bid rounded up");
 							}
 						}
 						else {
 							const diceFaceDiff = playerChoice.diceFace - previousTurn.bid.diceFace;
 							const diceQuantityDiff = playerChoice.diceQuantity - previousTurn.bid.diceQuantity;
 							if (!(diceFaceDiff == 0 && diceQuantityDiff > 0 || diceFaceDiff > 0 && diceQuantityDiff == 0)) {
-								throw new Error("a bid of other value than paco following a bid of other value than paco must be of greater quantity OR greater value, and not both");
+								throw new Error("a bid of other dice face than paco following a bid of other dice face than paco must be of greater quantity OR greater dice face, and not both");
 							}
 						}
 					}
@@ -128,7 +128,7 @@ export class Round {
 						else {
 							const previousNonPacoBidQuantity = findLast(this._turns, turn => turn.bid.diceFace !== DiceFace.Paco).bid.diceQuantity;
 							if (playerChoice.diceQuantity <= previousNonPacoBidQuantity * 2) {
-								throw new Error("a bid of non pacos following a bid of pacos must be greater than twice the most recent bid of non pacos");
+								throw new Error("a bid other dice face than paco following a bid of pacos must be greater than twice the most recent bid of other dice face than paco");
 							}
 						}
 					}
@@ -283,18 +283,18 @@ export const diceFacesNames = (function () {
 	return diceFaces.slice(diceFaces.length / 2);
 })();
 
-let _throwingDicesEnabled = true;
+let _isThrowingDicesEnabled = true;
 export function disableThrowingDices() {
-	_throwingDicesEnabled = false;
+	_isThrowingDicesEnabled = false;
 }
 export function enableThrowingDices() {
-	_throwingDicesEnabled = true;
+	_isThrowingDicesEnabled = true;
 }
 
 /// randomly generate a draw of dices for a given number of dices
 export function getDrawByThrowingDices(nbDices: number): Map<DiceFace, number> {
 	let nbDiceByFace = diceFacesNames.reduce((state, item) => state.set(item, 0), new Map());
-	if (!_throwingDicesEnabled) {
+	if (!_isThrowingDicesEnabled) {
 		return nbDiceByFace;
 	}
 	new Array(nbDices).fill(0).map(_ => Math.trunc((Math.random() * diceFacesNames.length)) as DiceFace)
