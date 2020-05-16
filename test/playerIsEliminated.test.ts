@@ -6,9 +6,11 @@ test('Second players looses the round and is out of dice', () => {
     const nbDicesByPlayer = [2, 1, 1];
     const game = new PerudoGame.Game(nbDicesByPlayer.length, nbDicesByPlayer);
 
-    game.currentRound.playersDicesDrawByPlayerId[0].set(<any>PerudoGame.DiceFace[PerudoGame.DiceFace.Two], nbDicesByPlayer[0]);
-    game.currentRound.playersDicesDrawByPlayerId[1].set(<any>PerudoGame.DiceFace[PerudoGame.DiceFace.Three], nbDicesByPlayer[1]);
-    game.currentRound.playersDicesDrawByPlayerId[2].set(<any>PerudoGame.DiceFace[PerudoGame.DiceFace.Four], nbDicesByPlayer[2]);
+    game.currentRound.playersDicesDrawByPlayerId[0].set(PerudoGame.DiceFace.Two, nbDicesByPlayer[0]);
+    game.currentRound.playersDicesDrawByPlayerId[1].set(PerudoGame.DiceFace.Three, nbDicesByPlayer[1]);
+    game.currentRound.playersDicesDrawByPlayerId[2].set(PerudoGame.DiceFace.Four, nbDicesByPlayer[2]);
+
+    console.debug(game.getDicesFacesOfCurrentRoundByPlayerId());
 
     game.playerPlays({ diceFace: PerudoGame.DiceFace.Two, diceQuantity: 2 });
     game.playerPlays({ diceFace: PerudoGame.DiceFace.Two, diceQuantity: 3 });
@@ -18,7 +20,8 @@ test('Second players looses the round and is out of dice', () => {
         .toBe(nbDicesByPlayer[0]);
     expect(game.currentRound.nbDicesOfEachPlayerByPlayerId[1])
         .toBe(0);
-    expect(game.currentRound.nbDicesOfEachPlayerByPlayerId[2]).toBe(nbDicesByPlayer[2]);
+    expect(game.currentRound.nbDicesOfEachPlayerByPlayerId[2])
+        .toBe(nbDicesByPlayer[2]);
 
     game.initializeNewRound();
 

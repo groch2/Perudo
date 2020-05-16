@@ -147,7 +147,7 @@ export class Round {
 			const countPacosAsJoker = previousTurn.bid.diceFace !== DiceFace.Paco && !this.isFirstPlayerOfCurrentRoundPlafico;
 			const nbDicesMatchingLastBid =
 				this.playersDicesDrawByPlayerId.reduce((diceTotal, playerDices) => {
-					return diceTotal + playerDices.get(<any>DiceFace[previousTurn.bid.diceFace]) + (countPacosAsJoker ? playerDices.get(<any>DiceFace[DiceFace.Paco]) : 0);
+					return diceTotal + playerDices.get(previousTurn.bid.diceFace) + (countPacosAsJoker ? playerDices.get(DiceFace.Paco) : 0);
 				}, 0);
 			let impactedPlayerId: undefined | number;
 			let roundDiceOutcome: RoundDiceOutcome | undefined;
@@ -293,12 +293,17 @@ export function enableThrowingDices() {
 
 /// randomly generate a draw of dices for a given number of dices
 export function getDrawByThrowingDices(nbDices: number): Map<DiceFace, number> {
-	let nbDiceByFace = diceFacesNames.reduce((state, item) => state.set(item, 0), new Map());
+	let nbDiceByFace =
+		diceFacesNames.reduce(
+			(nbDiceByFace, diceFace) => nbDiceByFace.set(diceFacesNames.indexOf(diceFace), 0),
+			new Map<DiceFace, number>());
 	if (!_isThrowingDicesEnabled) {
 		return nbDiceByFace;
 	}
-	new Array(nbDices).fill(0).map(_ => Math.trunc((Math.random() * diceFacesNames.length)) as DiceFace)
-		.forEach(diceFace => nbDiceByFace.set(DiceFace[diceFace], nbDiceByFace.get(DiceFace[diceFace]) + 1));
+	new Array(nbDices)
+		.fill(0)
+		.map(_ => Math.trunc((Math.random() * diceFacesNames.length)) as DiceFace)
+		.forEach(diceFace => nbDiceByFace.set(diceFace, nbDiceByFace.get(diceFace) + 1));
 	return nbDiceByFace;
 }
 
