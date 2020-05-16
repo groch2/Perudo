@@ -12,6 +12,10 @@ export enum RoundDiceOutcome { PlayerLostOneDice, PlayerRecoveredOneDice }
 
 export class Last2PlayersOfRound { lastPlayerId: number; beforeLastPlayerId: number }
 
+export class ErrorMessages {
+	public static BID_PACO_AFTER_NON_PACO = "the quantity of a bid of pacos following a bid of other dice face than paco must be superior to the half of the previous bid rounded up";
+}
+
 export class Turn {
 	constructor(
 		readonly playerId: number,
@@ -108,7 +112,7 @@ export class Round {
 					if (previousTurn.bid.diceFace !== DiceFace.Paco) {
 						if (playerChoice.diceFace === DiceFace.Paco) {
 							if (playerChoice.diceQuantity < Math.ceil(previousTurn.bid.diceQuantity / 2)) {
-								throw new Error("the quantity of a bid of pacos following a bid of other dice face than paco must be superior to the half of the previous bid rounded up");
+								throw new Error(ErrorMessages.BID_PACO_AFTER_NON_PACO);
 							}
 						}
 						else {

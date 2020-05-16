@@ -18,7 +18,7 @@ test('When first player bids on a dice face other than paco, and then second pla
 
     game.playerPlays({ diceFace: PerudoGame.DiceFace.Two, diceQuantity: 4 });
     expect(() => game.playerPlays({ diceFace: PerudoGame.DiceFace.Paco, diceQuantity: 1 }))
-        .toThrow();
+        .toThrow(PerudoGame.ErrorMessages.BID_PACO_AFTER_NON_PACO);
 });
 
 test('When first player bids on a dice face other than paco, and then second players bids a number of pacos that is half the previous bid quantity rounded up, then there should be no error', () => {
@@ -39,5 +39,5 @@ test('When first player bids on a dice face other than paco, and then second pla
 
     game.playerPlays({ diceFace: PerudoGame.DiceFace.Two, diceQuantity: 5 });
     expect(() => game.playerPlays({ diceFace: PerudoGame.DiceFace.Paco, diceQuantity: 2 }))
-        .toThrow();
+        .toThrow(PerudoGame.ErrorMessages.BID_PACO_AFTER_NON_PACO);
 });
