@@ -8,9 +8,8 @@ const rl =
 (function loop(state) {
     rl.question(`${state} Continue ? (Yes = Y, y)`, answer => {
         console.log(answer);
-        switch (answer) {
+        switch (answer.toUpperCase()) {
             case 'Y':
-            case 'y':
                 loop(state + 1);
                 return;
             default:

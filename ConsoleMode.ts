@@ -24,11 +24,10 @@ next player id: ${nextPlayerId}
 next player dices: ${[...nextPlayerDices.values()]}
 turn number: ${game.currentRound.getTurnNumber()}\n`;
     game.currentRound.lastTurn
-    rl.question(question, answer => {
+    rl.question((question, answer: string) => {
         console.log(answer);
-        switch (answer) {
+        switch (answer.toUpperCase()) {
             case 'Y':
-            case 'y':
                 loop();
                 return;
             default:
