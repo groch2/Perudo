@@ -13,7 +13,14 @@ export enum RoundDiceOutcome { PlayerLostOneDice, PlayerRecoveredOneDice }
 export class Last2PlayersOfRound { lastPlayerId: number; beforeLastPlayerId: number }
 
 export class ErrorMessages {
-	public static readonly BID_PACO_AFTER_NON_PACO = "the quantity of a bid of pacos following a bid of other dice face than paco must be superior to the half of the previous bid rounded up";
+	public static readonly BID_PACO_AFTER_NON_PACO =
+		"the quantity of a bid of pacos following a bid of other dice face than paco must be superior to the half of the previous bid rounded up";
+	public static readonly START_NON_PLAFICO_ROUND_BY_BIDDING_PACOS =
+		'It is forbidden to start a round by bidding pacos, except if the first player of the round has only one dice left (he is said to be "plafico")';
+	public static readonly BIDDING_PACOS_IN_PLAFICO_ROUND_MUST_INCREASE_THE_PREVIOUS_BID_QUANTITY =
+		"in a round where the first player is plafico, a bid must be of greater quantity OR greater value than the previous one, and not both";
+	public static readonly BIDDING_PACOS_IN_NOT_PLAFICO_ROUND_MUST_INCREASE_THE_PREVIOUS_BID_QUANTITY =
+		"a bid of other dice face than paco following a bid of other dice face than paco must be of greater quantity OR greater dice face, and not both";
 }
 
 export class Turn {
@@ -101,15 +108,23 @@ export class Round {
 			!previousTurn ? 1 :
 				getNextPlayerId(this.nbDicesOfEachPlayerByPlayerId, currentPlayerId + 1);
 		if (isDiceBid(playerChoice)) {
+			const throwErrorWithMessageIfBiddingIsNotIncreasedByDiceFaceValueXOrByDiceQuantity = (errorMessage: string) => {
+				const diceFaceDiff = playerChoice.diceFace - previousTurn.bid.diceFace;
+				const diceQuantityDiff = playerChoice.diceQuantity - previousTurn.bid.diceQuantity;
+				if (!(diceFaceDiff == 0 && diceQuantityDiff > 0 || diceFaceDiff > 0 && diceQuantityDiff == 0)) {
+					throw new Error(errorMessage);
+				}
+			};
 			if (this.isFirstPlayerOfCurrentRoundPlafico) {
-				if (playerChoice.diceFace > previousTurn.bid.diceFace && playerChoice.diceQuantity > previousTurn.bid.diceQuantity) {
-					throw new Error("in a round where the first player is plafico, a bid must be of greater quantity OR greater value than the previous one, and not both");
+				if (!isRoundBeginning) {
+					throwErrorWithMessageIfBiddingIsNotIncreasedByDiceFaceValueXOrByDiceQuantity(
+						ErrorMessages.BIDDING_PACOS_IN_PLAFICO_ROUND_MUST_INCREASE_THE_PREVIOUS_BID_QUANTITY);
 				}
 			}
 			else {
 				if (isRoundBeginning) {
 					if (playerChoice.diceFace === DiceFace.Paco) {
-						throw new Error("It is forbidden to start a round by bidding pacos if the first player of the round has more than one dice");
+						throw new Error(ErrorMessages.START_NON_PLAFICO_ROUND_BY_BIDDING_PACOS);
 					}
 				}
 				else {
@@ -120,11 +135,8 @@ export class Round {
 							}
 						}
 						else {
-							const diceFaceDiff = playerChoice.diceFace - previousTurn.bid.diceFace;
-							const diceQuantityDiff = playerChoice.diceQuantity - previousTurn.bid.diceQuantity;
-							if (!(diceFaceDiff == 0 && diceQuantityDiff > 0 || diceFaceDiff > 0 && diceQuantityDiff == 0)) {
-								throw new Error("a bid of other dice face than paco following a bid of other dice face than paco must be of greater quantity OR greater dice face, and not both");
-							}
+							throwErrorWithMessageIfBiddingIsNotIncreasedByDiceFaceValueXOrByDiceQuantity(
+								ErrorMessages.BIDDING_PACOS_IN_NOT_PLAFICO_ROUND_MUST_INCREASE_THE_PREVIOUS_BID_QUANTITY);
 						}
 					}
 					else {
