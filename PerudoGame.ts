@@ -25,6 +25,8 @@ export class ErrorMessages {
 		"a bid of pacos following a bid of pacos must increase the quantity";
 	public static readonly BIDDING_NON_PACOS_AFTER_A_BID_OF_PACOS =
 		"a bid of other dice face than paco following a bid of pacos must be greater than twice the number of dices of the previous bid";
+	public static readonly CALLING_BLUFF_OR_EXACT_MATCH_AT_THE_BEGINNING_OF_THE_ROUND =
+		"It is an error to call a bluff or an exact match at the beginning of the round, before any bid was made."
 }
 
 export class Turn {
@@ -165,7 +167,7 @@ export class Round {
 		}
 		else {
 			if (isRoundBeginning) {
-				throw Error("It is an error to call a bluff or an exact match at the beginning of the round, before any bid was made.");
+				throw Error(ErrorMessages.CALLING_BLUFF_OR_EXACT_MATCH_AT_THE_BEGINNING_OF_THE_ROUND);
 			}
 			const countPacosAsJoker = previousTurn.bid.diceFace !== DiceFace.Paco && !this.isFirstPlayerOfCurrentRoundPlafico;
 			const nbDicesMatchingLastBid =
