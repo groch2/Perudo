@@ -242,13 +242,14 @@ export class Game {
 	public constructor(nbPlayersOrNbDicesByPlayer: number | number[]) {
 		const nbPlayers = nbPlayersOrNbDicesByPlayer as number;
 		let nbDicesByPlayer = nbPlayersOrNbDicesByPlayer as number[]
-		nbDicesByPlayer = nbDicesByPlayer.length ? nbDicesByPlayer : new Array<number>(nbPlayers).fill(0);
+		nbDicesByPlayer =
+			nbDicesByPlayer.length ?
+				nbDicesByPlayer :
+				new Array(nbPlayers).fill(nbStartingDicesByPlayer);
 
 		this._isOver = false;
 		this._nbPlayers = nbPlayers || nbDicesByPlayer.length;
 
-		nbDicesByPlayer =
-			nbDicesByPlayer || new Array(nbPlayers).fill(nbStartingDicesByPlayer);
 		const playersDicesDrawByPlayerId =
 			nbDicesByPlayer.map(nbStartingDices => getDrawByThrowingDices(nbStartingDices));
 
