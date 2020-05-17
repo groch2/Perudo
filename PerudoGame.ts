@@ -21,6 +21,10 @@ export class ErrorMessages {
 		"in a round where the first player is plafico, a bid must be of greater quantity OR greater value than the previous one, and not both";
 	public static readonly BIDDING_PACOS_IN_NOT_PLAFICO_ROUND_MUST_INCREASE_THE_PREVIOUS_BID_QUANTITY =
 		"a bid of other dice face than paco following a bid of other dice face than paco must be of greater quantity OR greater dice face, and not both";
+	public static readonly BIDDING_PACOS_AFTER_A_BID_OF_PACOS =
+		"a bid of pacos following a bid of pacos must increase the quantity";
+	public static readonly BIDDING_NON_PACOS_AFTER_A_BID_OF_PACOS =
+		"a bid of other dice face than paco following a bid of pacos must be greater than twice the number of dices of the previous bid";
 }
 
 export class Turn {
@@ -142,13 +146,12 @@ export class Round {
 					else {
 						if (playerChoice.diceFace === DiceFace.Paco) {
 							if (playerChoice.diceQuantity <= previousTurn.bid.diceQuantity) {
-								throw new Error("a bid of pacos following a bid of pacos must increase the quantity");
+								throw new Error(ErrorMessages.BIDDING_PACOS_AFTER_A_BID_OF_PACOS);
 							}
 						}
 						else {
-							const previousNonPacoBidQuantity = findLast(this._turns, turn => turn.bid.diceFace !== DiceFace.Paco).bid.diceQuantity;
-							if (playerChoice.diceQuantity <= previousNonPacoBidQuantity * 2) {
-								throw new Error("a bid other dice face than paco following a bid of pacos must be greater than twice the most recent bid of other dice face than paco");
+							if (playerChoice.diceQuantity <= previousTurn.bid.diceQuantity * 2) {
+								throw new Error(ErrorMessages.BIDDING_NON_PACOS_AFTER_A_BID_OF_PACOS);
 							}
 						}
 					}
@@ -330,13 +333,4 @@ export function getDrawByThrowingDices(nbDices: number): Map<DiceFace, number> {
 		.map(_ => Math.trunc((Math.random() * diceFacesNames.length)) as DiceFace)
 		.forEach(diceFace => nbDiceByFace.set(diceFace, nbDiceByFace.get(diceFace) + 1));
 	return nbDiceByFace;
-}
-
-function findLast<T>(array: Array<T>, predicate: (item: T) => boolean): T | undefined {
-	for (let i = this.array.length - 1; i >= 0; i--) {
-		if (predicate(array[i])) {
-			return array[i];
-		}
-	}
-	return undefined;
 }
