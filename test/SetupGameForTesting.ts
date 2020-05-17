@@ -14,7 +14,7 @@ PerudoGame.disableThrowingDices();
 
     const onlyPositiveDiceQuantityByFaceByPlayer =
         game
-            .getDicesFacesOfCurrentRoundByPlayerId()
+            .dicesFacesOfCurrentRoundByPlayerId
             .map(diceDraw => [...diceDraw.entries()].filter(([, quantity]) => quantity > 0));
     const diceDrawByPlayerIdWithDiceFaceNames =
         onlyPositiveDiceQuantityByFaceByPlayer

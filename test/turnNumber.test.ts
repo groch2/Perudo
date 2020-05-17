@@ -9,7 +9,7 @@ test('Get turn number', () => {
     let diceQuantityOfBid = 1;
 
     for (let expectedTurnNumber = 0; expectedTurnNumber < nbTurnsToPlay; expectedTurnNumber++) {
-        expect(game.currentRound.getTurnNumber())
+        expect(game.currentRound.turnNumber)
             .toBe(expectedTurnNumber);
 
         game.playerPlays({ diceFace: PerudoGame.DiceFace.Two, diceQuantity: diceQuantityOfBid });
@@ -17,11 +17,11 @@ test('Get turn number', () => {
         diceQuantityOfBid++;
     }
 
-    expect(game.currentRound.getTurnNumber())
+    expect(game.currentRound.turnNumber)
         .toBe(nbTurnsToPlay);
 
     game.playerPlays(PerudoGame.PlayerEndOfRoundCall.Bluff);
 
-    expect(game.currentRound.getTurnNumber())
+    expect(game.currentRound.turnNumber)
         .toBe(nbTurnsToPlay);
 });

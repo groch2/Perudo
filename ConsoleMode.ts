@@ -4,7 +4,7 @@ const nbPlayers = 2;
 const game = new PerudoGame.Game(nbPlayers);
 
 console.log("Nb dices by player id", game.nbDicesByPlayerId);
-console.log("Nb dices faces of current round by player id", game.getDicesFacesOfCurrentRoundByPlayerId().map(d => [...d.values()]));
+console.log("Nb dices faces of current round by player id", game.dicesFacesOfCurrentRoundByPlayerId.map(d => [...d.values()]));
 
 const rl =
     require('readline')
@@ -22,7 +22,7 @@ const rl =
 nb dices of other players: ${nbDicesByPlayerId.reduce((a, b) => a + b) - nbDicesByPlayerId[nextPlayerId]}
 next player id: ${nextPlayerId}
 next player dices: ${[...nextPlayerDices.values()]}
-turn number: ${game.currentRound.getTurnNumber()}\n`;
+turn number: ${game.currentRound.turnNumber}\n`;
     game.currentRound.lastTurn
     rl.question((question, answer: string) => {
         console.log(answer);
