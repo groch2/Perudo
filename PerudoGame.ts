@@ -187,17 +187,17 @@ export class Round {
 					break;
 				case PlayerEndOfRoundCall.ExactMatch:
 					const isExactMatch = previousTurn.bid.diceQuantity === nbDicesMatchingLastBid;
-					const nbDicesOfLastPlayer = this.nbDicesByPlayer[this.nextPlayerId];
+					const nbDicesOfLastPlayer = this.nbDicesByPlayer[currentPlayerId];
 					[impactedPlayerId, roundDiceOutcome] =
 						(() => {
 							if (isExactMatch) {
 								if (nbDicesOfLastPlayer < nbStartingDicesByPlayer) {
-									this.nbDicesByPlayer[this.nextPlayerId]++;
+									this.nbDicesByPlayer[currentPlayerId]++;
 									return [currentPlayerId, RoundDiceOutcome.PlayerRecoveredOneDice];
 								}
 								return [undefined, undefined];
 							}
-							this.nbDicesByPlayer[this.nextPlayerId]--;
+							this.nbDicesByPlayer[currentPlayerId]--;
 							return [currentPlayerId, RoundDiceOutcome.PlayerLostOneDice];
 						})();
 					break;
