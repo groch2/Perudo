@@ -46,7 +46,7 @@ function isDiceBid(playerChoice: PlayerDiceBid | PlayerEndOfRoundCall): playerCh
 	return (playerChoice as PlayerDiceBid).diceFace !== undefined;
 }
 
-function getNextPlayerId(nbDiceByPlayerId: number[], firstPossibleNextPlayerId: number): number {
+export function getNextPlayerId(nbDiceByPlayerId: number[], firstPossibleNextPlayerId: number): number {
 	return (
 		(nbDiceByPlayerId
 			.concat(nbDiceByPlayerId)
