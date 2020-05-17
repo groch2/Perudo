@@ -59,13 +59,13 @@ function isDiceBid(playerChoice: PlayerDiceBid | PlayerEndOfRoundCall): playerCh
 	return (playerChoice as PlayerDiceBid).diceFace !== undefined;
 }
 
-export function getNextPlayerId(nbDiceByPlayerId: number[], firstPossibleNextPlayerId: number): number {
+export function getNextPlayerId(nbDicesByPlayerId: number[], fromPlayerId: number): number {
 	return (
-		(nbDiceByPlayerId
-			.concat(nbDiceByPlayerId)
-			.slice(firstPossibleNextPlayerId)
+		(nbDicesByPlayerId
+			.concat(nbDicesByPlayerId)
+			.slice(fromPlayerId)
 			.findIndex(nbDicesOfPlayerId => nbDicesOfPlayerId > 0)
-			+ firstPossibleNextPlayerId) % nbDiceByPlayerId.length);
+			+ fromPlayerId) % nbDicesByPlayerId.length);
 }
 
 export class Round {
