@@ -4,11 +4,11 @@ test('When there is n players, and the player with id (n - 2) plays, and the pla
     PerudoGame.disableThrowingDices();
 
     const nbPlayers = 3;
-    const nbDicesByPlayerId = new Array(nbPlayers).fill(2);
-    nbDicesByPlayerId[nbDicesByPlayerId.length - 1] = 0;
-    const game = new PerudoGame.Game(nbDicesByPlayerId.length, nbDicesByPlayerId);
+    const nbDicesByPlayer = new Array(nbPlayers).fill(2);
+    nbDicesByPlayer[nbDicesByPlayer.length - 1] = 0;
+    const game = new PerudoGame.Game(nbDicesByPlayer);
 
-    for (let i = 1; i < nbDicesByPlayerId.length - 1; i++) {
+    for (let i = 1; i < nbDicesByPlayer.length - 1; i++) {
         game.playerPlays({ diceFace: PerudoGame.DiceFace.Two, diceQuantity: i });
 
         const expectedPlayerId = i;
@@ -16,7 +16,7 @@ test('When there is n players, and the player with id (n - 2) plays, and the pla
             .toBe(expectedPlayerId);
     }
 
-    game.playerPlays({ diceFace: PerudoGame.DiceFace.Two, diceQuantity: nbDicesByPlayerId.length - 1 });
+    game.playerPlays({ diceFace: PerudoGame.DiceFace.Two, diceQuantity: nbDicesByPlayer.length - 1 });
 
     expect(game.nextPlayerId)
         .toBe(0);

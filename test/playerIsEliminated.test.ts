@@ -4,7 +4,7 @@ test('If the second players looses the round and is out of dice and the third pl
     PerudoGame.disableThrowingDices();
 
     const nbDicesByPlayer = [2, 1, 1];
-    const game = new PerudoGame.Game(nbDicesByPlayer.length, nbDicesByPlayer);
+    const game = new PerudoGame.Game(nbDicesByPlayer);
 
     game.currentRound.playersDicesDrawByPlayerId[0].set(PerudoGame.DiceFace.Two, nbDicesByPlayer[0]);
     game.currentRound.playersDicesDrawByPlayerId[1].set(PerudoGame.DiceFace.Three, nbDicesByPlayer[1]);
@@ -14,11 +14,11 @@ test('If the second players looses the round and is out of dice and the third pl
     game.playerPlays({ diceFace: PerudoGame.DiceFace.Two, diceQuantity: 3 });
     game.playerPlays(PerudoGame.PlayerEndOfRoundCall.Bluff);
 
-    expect(game.currentRound.nbDicesOfEachPlayerByPlayerId[0])
+    expect(game.currentRound.nbDicesByPlayer[0])
         .toBe(nbDicesByPlayer[0]);
-    expect(game.currentRound.nbDicesOfEachPlayerByPlayerId[1])
+    expect(game.currentRound.nbDicesByPlayer[1])
         .toBe(0);
-    expect(game.currentRound.nbDicesOfEachPlayerByPlayerId[2])
+    expect(game.currentRound.nbDicesByPlayer[2])
         .toBe(nbDicesByPlayer[2]);
 
     game.initializeNewRound();
@@ -31,7 +31,7 @@ test('If the second players looses the round and is out of dice and the third pl
     PerudoGame.disableThrowingDices();
 
     const nbDicesByPlayer = [2, 1, 0, 1];
-    const game = new PerudoGame.Game(nbDicesByPlayer.length, nbDicesByPlayer);
+    const game = new PerudoGame.Game(nbDicesByPlayer);
 
     game.currentRound.playersDicesDrawByPlayerId[0].set(PerudoGame.DiceFace.Two, nbDicesByPlayer[0]);
     game.currentRound.playersDicesDrawByPlayerId[1].set(PerudoGame.DiceFace.Three, nbDicesByPlayer[1]);
@@ -41,11 +41,11 @@ test('If the second players looses the round and is out of dice and the third pl
     game.playerPlays({ diceFace: PerudoGame.DiceFace.Two, diceQuantity: 3 });
     game.playerPlays(PerudoGame.PlayerEndOfRoundCall.Bluff);
 
-    expect(game.currentRound.nbDicesOfEachPlayerByPlayerId[0])
+    expect(game.currentRound.nbDicesByPlayer[0])
         .toBe(nbDicesByPlayer[0]);
-    expect(game.currentRound.nbDicesOfEachPlayerByPlayerId[1])
+    expect(game.currentRound.nbDicesByPlayer[1])
         .toBe(0);
-    expect(game.currentRound.nbDicesOfEachPlayerByPlayerId[3])
+    expect(game.currentRound.nbDicesByPlayer[3])
         .toBe(nbDicesByPlayer[3]);
 
     game.initializeNewRound();

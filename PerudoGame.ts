@@ -71,11 +71,11 @@ export class Round {
 		private _endOfRound: EndOfRound,
 		private _isOver: boolean,
 		public readonly nbPlayers: number,
-		public readonly nbDicesOfEachPlayerByPlayerId: number[],
+		public readonly nbDicesByPlayer: number[],
 		readonly playersDicesDrawByPlayerId: Map<DiceFace, number>[],
 		readonly firstPlayerId: number) {
 		this.isFirstPlayerOfCurrentRoundPlafico =
-			nbDicesOfEachPlayerByPlayerId[firstPlayerId] === 1;
+			nbDicesByPlayer[firstPlayerId] === 1;
 		this._nextPlayerId = 0;
 	}
 
@@ -106,7 +106,7 @@ export class Round {
 		const currentPlayerId = this._nextPlayerId;
 		this._nextPlayerId =
 			!previousTurn ? 1 :
-				getNextPlayerId(this.nbDicesOfEachPlayerByPlayerId, currentPlayerId + 1);
+				getNextPlayerId(this.nbDicesByPlayer, currentPlayerId + 1);
 		if (isDiceBid(playerChoice)) {
 			const throwErrorWithMessageIfBiddingIsNotIncreasedByDiceFaceValueXOrByDiceQuantity = (errorMessage: string) => {
 				const diceFaceDiff = playerChoice.diceFace - previousTurn.bid.diceFace;
@@ -178,21 +178,21 @@ export class Round {
 						nbDicesMatchingLastBid < previousTurn.bid.diceQuantity ?
 							previousTurn.playerId :
 							currentPlayerId;
-					this.nbDicesOfEachPlayerByPlayerId[impactedPlayerId]--;
+					this.nbDicesByPlayer[impactedPlayerId]--;
 					break;
 				case PlayerEndOfRoundCall.ExactMatch:
 					const isExactMatch = previousTurn.bid.diceQuantity === nbDicesMatchingLastBid;
-					const nbDicesOfLastPlayer = this.nbDicesOfEachPlayerByPlayerId[this.nextPlayerId];
+					const nbDicesOfLastPlayer = this.nbDicesByPlayer[this.nextPlayerId];
 					[impactedPlayerId, roundDiceOutcome] =
 						(() => {
 							if (isExactMatch) {
 								if (nbDicesOfLastPlayer < nbStartingDicesByPlayer) {
-									this.nbDicesOfEachPlayerByPlayerId[this.nextPlayerId]++;
+									this.nbDicesByPlayer[this.nextPlayerId]++;
 									return [currentPlayerId, RoundDiceOutcome.PlayerRecoveredOneDice];
 								}
 								return [undefined, undefined];
 							}
-							this.nbDicesOfEachPlayerByPlayerId[this.nextPlayerId]--;
+							this.nbDicesByPlayer[this.nextPlayerId]--;
 							return [currentPlayerId, RoundDiceOutcome.PlayerLostOneDice];
 						})();
 					break;
@@ -239,22 +239,26 @@ export class Game {
 	private _nbPlayers: number;
 	private _rounds: Round[];
 
-	public constructor(nbPlayers: number, nbDicesByPlayerId?: number[]) {
-		this._isOver = false;
-		this._nbPlayers = nbPlayers;
+	public constructor(nbPlayersOrNbDicesByPlayer: number | number[]) {
+		const nbPlayers = nbPlayersOrNbDicesByPlayer as number;
+		let nbDicesByPlayer = nbPlayersOrNbDicesByPlayer as number[]
+		nbDicesByPlayer = nbDicesByPlayer.length ? nbDicesByPlayer : new Array<number>(nbPlayers).fill(0);
 
-		const nbDicesOfEachPlayerByPlayerId =
-			nbDicesByPlayerId || new Array(nbPlayers).fill(nbStartingDicesByPlayer);
+		this._isOver = false;
+		this._nbPlayers = nbPlayers || nbDicesByPlayer.length;
+
+		nbDicesByPlayer =
+			nbDicesByPlayer || new Array(nbPlayers).fill(nbStartingDicesByPlayer);
 		const playersDicesDrawByPlayerId =
-			nbDicesOfEachPlayerByPlayerId.map(nbStartingDices => getDrawByThrowingDices(nbStartingDices));
+			nbDicesByPlayer.map(nbStartingDices => getDrawByThrowingDices(nbStartingDices));
 
 		this._rounds = [];
-		const firstRound = new Round([], null, false, this.nbPlayers, nbDicesOfEachPlayerByPlayerId, playersDicesDrawByPlayerId, 0);
+		const firstRound = new Round([], null, false, this.nbPlayers, nbDicesByPlayer, playersDicesDrawByPlayerId, 0);
 		this._rounds.push(firstRound);
 	}
 
 	public initializeNewRound(): void {
-		const nbDicesOfEachPlayerByPlayerId = this.currentRound.nbDicesOfEachPlayerByPlayerId.splice(0);
+		const nbDicesOfEachPlayerByPlayerId = this.currentRound.nbDicesByPlayer.splice(0);
 		const playersDicesDrawByPlayerId =
 			new Array(this._nbPlayers)
 				.fill(0)
@@ -290,7 +294,7 @@ export class Game {
 	}
 
 	public get nbDicesByPlayerId() {
-		return this.currentRound.nbDicesOfEachPlayerByPlayerId;
+		return this.currentRound.nbDicesByPlayer;
 	}
 
 	public getDicesFacesOfCurrentRoundByPlayerId() {
