@@ -215,23 +215,20 @@ export class Round {
 		}
 	};
 
-	public get totalNbDiceByFaceIndex() {
+	public get totalNbDicesByFaceIndex() {
 		const nbDiceByFace = new Array<number>(diceFacesNames.length).fill(0);
 		this.playersDicesDrawByPlayerId.forEach(playerDices => {
 			for (let [diceFace, quantity] of playerDices) {
-				nbDiceByFace[DiceFace[diceFace]] += quantity;
+				nbDiceByFace[diceFace] += quantity;
 			}
 		});
 		return nbDiceByFace;
 	}
 
-	public get totalNbDiceByFaceName() {
-		return [...this.totalNbDiceByFaceIndex.entries()]
-			.map(([diceNameIndex, diceQuantity]) => [diceFacesNames[diceNameIndex], diceQuantity]);
-	}
-
-	public get totalPositiveNbDiceByFaceName() {
-		return this.totalNbDiceByFaceName.filter(([, quantity]) => quantity > 0);
+	public get totalPositiveNbDicesByFaceName() {
+		return [...this.totalNbDicesByFaceIndex.entries()]
+			.map(([diceNameIndex, diceQuantity]) => [diceFacesNames[diceNameIndex], diceQuantity])
+			.filter(([, quantity]) => quantity > 0);
 	}
 
 	public get turnNumber() {
@@ -303,8 +300,15 @@ export class Game {
 		return this.currentRound.nbDicesByPlayer;
 	}
 
-	public get dicesFacesOfCurrentRoundByPlayerId() {
+	public get currentRoundPlayersDicesDrawByPlayerId() {
 		return this.currentRound.playersDicesDrawByPlayerId;
+	}
+
+	public get currentRoundPlayersDicesDrawByPlayerIdByPositiveDiceFaceNumber() {
+		return (
+			this
+				.currentRoundPlayersDicesDrawByPlayerId
+				.map(diceDraw => [...diceDraw.entries()].filter(([, quantity]) => quantity > 0).map(([diceFace, diceQuantity]) => [diceFacesNames[diceFace], diceQuantity])));
 	}
 }
 

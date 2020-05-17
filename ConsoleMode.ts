@@ -4,7 +4,7 @@ const nbPlayers = 2;
 const game = new PerudoGame.Game(nbPlayers);
 
 console.log("Nb dices by player id", game.nbDicesByPlayerId);
-console.log("Nb dices faces of current round by player id", game.dicesFacesOfCurrentRoundByPlayerId.map(d => [...d.values()]));
+console.log("Nb dices faces of current round by player id", game.currentRoundPlayersDicesDrawByPlayerId.map(d => [...d.values()]));
 
 const rl =
     require('readline')
