@@ -1,7 +1,5 @@
 import * as PerudoGame from "../PerudoGame";
 
-const getNextPlayerId = PerudoGame.getNextPlayerId;
-
 test("10 players, but none have any dice left except for one. So the next player should always be this one, regardless of the starting player", () => {
     const nbPlayers = 10;
     for (let onlyPlayerIdWithOneDiceLeft = 0; onlyPlayerIdWithOneDiceLeft < nbPlayers; onlyPlayerIdWithOneDiceLeft++) {
@@ -11,7 +9,7 @@ test("10 players, but none have any dice left except for one. So the next player
             .filter(([nbDices,]) => nbDices > 0)
             .map(([, playerId]) => playerId)
             .forEach(playerIdOfPlayerWithoutDice => {
-                const actualPlayerId = getNextPlayerId(nbDicesByPlayerId, playerIdOfPlayerWithoutDice);
+                const actualPlayerId = PerudoGame.getNextPlayerId(nbDicesByPlayerId, playerIdOfPlayerWithoutDice);
                 expect(actualPlayerId)
                     .toBe(onlyPlayerIdWithOneDiceLeft);
             });

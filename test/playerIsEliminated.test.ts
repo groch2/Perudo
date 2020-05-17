@@ -1,8 +1,8 @@
 import * as PerudoGame from "../PerudoGame";
 
-test('If the second players looses the round and is out of dice and the third player has at least one dice, then the third player is the first player of the next round', () => {
-    PerudoGame.disableThrowingDices();
+beforeAll(PerudoGame.disableThrowingDices);
 
+test('If the second players looses the round and is out of dice and the third player has at least one dice, then the third player is the first player of the next round', () => {
     const nbDicesByPlayer = [2, 1, 1];
     const game = new PerudoGame.Game(nbDicesByPlayer);
 
@@ -28,8 +28,6 @@ test('If the second players looses the round and is out of dice and the third pl
 });
 
 test('If the second players looses the round and is out of dice and the third player does not have any dice left and the fourth player has at least one dice, then the fourth player is the first player of the next round', () => {
-    PerudoGame.disableThrowingDices();
-
     const nbDicesByPlayer = [2, 1, 0, 1];
     const game = new PerudoGame.Game(nbDicesByPlayer);
 

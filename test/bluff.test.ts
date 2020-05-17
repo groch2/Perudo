@@ -1,7 +1,6 @@
 import * as PerudoGame from "../PerudoGame";
 
-const nbPlayers = 2;
-PerudoGame.disableThrowingDices();
+beforeAll(PerudoGame.disableThrowingDices);
 
 test('Second players calls bluff and first player loose one dice', () => {
     const nbDicesByPlayer = [2, 3];
