@@ -25,7 +25,6 @@ turn number: ${game.currentRound.turnNumber}\n`;
     rl.question(
         question,
         (answer: string) => {
-            console.log(question);
             switch (answer.toUpperCase()) {
                 case 'Y':
                     loop();
