@@ -21,8 +21,6 @@ test('If the second players looses the round and is out of dice and the third pl
     expect(game.currentRound.nbDicesByPlayer[2])
         .toBe(nbDicesByPlayer[2]);
 
-    game.initializeNewRound();
-
     expect(game.currentRound.firstPlayerId)
         .toBe(2);
 });
@@ -45,8 +43,6 @@ test('If the second players looses the round and is out of dice and the third pl
         .toBe(0);
     expect(game.currentRound.nbDicesByPlayer[3])
         .toBe(nbDicesByPlayer[3]);
-
-    game.initializeNewRound();
 
     expect(game.currentRound.firstPlayerId)
         .toBe(3);

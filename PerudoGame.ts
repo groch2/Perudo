@@ -242,7 +242,7 @@ export class Game {
 		let nbDicesByPlayer = nbPlayersOrNbDicesByPlayer as number[]
 		nbDicesByPlayer =
 			nbDicesByPlayer.length ?
-				nbDicesByPlayer :
+				nbDicesByPlayer.slice(0) :
 				new Array(nbPlayers).fill(nbStartingDicesByPlayer);
 
 		this._isOver = false;
@@ -256,7 +256,7 @@ export class Game {
 		this._rounds.push(firstRound);
 	}
 
-	public initializeNewRound(): void {
+	private initializeNewRound(): void {
 		const nbDicesOfEachPlayerByPlayerId = this.currentRound.nbDicesByPlayer.splice(0);
 		const playersDicesDrawByPlayerId =
 			new Array(this._nbPlayers)
@@ -290,6 +290,9 @@ export class Game {
 
 	public playerPlays(playerChoice: PlayerDiceBid | PlayerEndOfRoundCall): void {
 		this.currentRound.playerPlays(playerChoice);
+		if (this.currentRound.isOver) {
+			this.initializeNewRound()
+		}
 	}
 
 	public get nbDicesOfAllPlayersByPlayerId() {

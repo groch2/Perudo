@@ -6,21 +6,13 @@ test('Get turn number', () => {
 
     const game = new PerudoGame.Game(nbPlayers);
     const nbTurnsToPlay = 7;
-    let diceQuantityOfBid = 1;
 
-    for (let expectedTurnNumber = 0; expectedTurnNumber < nbTurnsToPlay; expectedTurnNumber++) {
+    for (let i = 0; i < nbTurnsToPlay; i++) {
         expect(game.currentRound.turnNumber)
-            .toBe(expectedTurnNumber);
+            .toBe(i);
 
-        game.playerPlays({ diceFace: PerudoGame.DiceFace.Two, diceQuantity: diceQuantityOfBid });
-
-        diceQuantityOfBid++;
+        game.playerPlays({ diceFace: PerudoGame.DiceFace.Two, diceQuantity: i + 1 });
     }
-
-    expect(game.currentRound.turnNumber)
-        .toBe(nbTurnsToPlay);
-
-    game.playerPlays(PerudoGame.PlayerEndOfRoundCall.Bluff);
 
     expect(game.currentRound.turnNumber)
         .toBe(nbTurnsToPlay);
