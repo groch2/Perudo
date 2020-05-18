@@ -268,6 +268,7 @@ export class Game {
 		this._rounds.push(newRound);
 	}
 
+	// TODO: make this getter private. It exposes a way to mutate the state of the game, and it should not.
 	public get currentRound() {
 		return this._rounds[this._rounds.length - 1];
 	}
@@ -307,14 +308,10 @@ export class Game {
 		return this.nbDicesOfAllPlayersByPlayerId.reduce((a, b) => a + b) - this.nbDicesOfAllPlayersByPlayerId[this.nextPlayerId];
 	}
 
-	public get currentRoundPlayersDicesDrawByPlayerId() {
-		return this.currentRound.playersDicesDrawByPlayerId;
-	}
-
 	public get currentRoundPlayersDicesDrawByPlayerIdByPositiveDiceFaceNumber() {
 		return (
 			this
-				.currentRoundPlayersDicesDrawByPlayerId
+				.currentRound.playersDicesDrawByPlayerId
 				.map(diceDraw => [...diceDraw.entries()].filter(([, quantity]) => quantity > 0).map(([diceFace, diceQuantity]) => [diceFacesNames[diceFace], diceQuantity])));
 	}
 

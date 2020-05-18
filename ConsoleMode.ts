@@ -18,6 +18,7 @@ const rl =
     const question =
         `round number: ${game.currentRoundNumber}
 next player id: ${game.nextPlayerId}
+nb dices of next player: ${game.nbDicesOfNextPlayer}
 next player dices detail: ${JSON.stringify(game.nextPlayerDices)}
 total nb dices of all other players: ${game.nbDicesOfOtherPlayersThanTheNextPlayer}
 nb dices of all players by player id: ${JSON.stringify(game.nbDicesOfAllPlayersByPlayerId)} 
