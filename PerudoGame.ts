@@ -6,11 +6,7 @@ export type PlayerDiceBid = { diceFace: DiceFace, diceQuantity: number }
 
 export enum PlayerEndOfRoundCall { Bluff, ExactMatch }
 
-export enum PlayerPosition { Last, BeforeLast }
-
-export enum RoundDiceOutcome { PlayerLostOneDice, PlayerRecoveredOneDice }
-
-export class Last2PlayersOfRound { lastPlayerId: number; beforeLastPlayerId: number }
+enum RoundDiceOutcome { PlayerLostOneDice, PlayerRecoveredOneDice }
 
 export class ErrorMessages {
 	public static readonly BID_PACO_AFTER_NON_PACO =
@@ -29,30 +25,20 @@ export class ErrorMessages {
 		"It is an error to call a bluff or an exact match at the beginning of the round, before any bid was made."
 }
 
-export class Turn {
+class Turn {
 	constructor(
 		readonly turnId: number,
 		readonly playerId: number,
 		readonly playerBid: PlayerDiceBid) { }
 }
 
-export class EndOfRound {
+class EndOfRound {
 	constructor(
 		readonly lastPlayerId: number,
 		readonly beforeLastPlayerId: number,
 		readonly playerEndOfRoundCall: PlayerEndOfRoundCall,
 		readonly impactedPlayerId: number | undefined,
 		readonly roundDiceOutcome: RoundDiceOutcome | undefined) { }
-	get positionOfPlayerImpactedByDiceOutcome() {
-		switch (this.impactedPlayerId) {
-			case this.lastPlayerId:
-				return PlayerPosition.Last;
-			case this.beforeLastPlayerId:
-				return PlayerPosition.BeforeLast;
-			default:
-				return undefined;
-		}
-	}
 }
 
 function isDiceBid(playerChoice: PlayerDiceBid | PlayerEndOfRoundCall): playerChoice is PlayerDiceBid {
@@ -68,7 +54,7 @@ export function getNextPlayerId(nbDicesByPlayerId: number[], fromPlayerId: numbe
 			+ fromPlayerId) % nbDicesByPlayerId.length);
 }
 
-export class Round {
+class Round {
 	// if the first player of the round has only one dice left, then he or she is plafico and the pacos does not count has jokers during this round
 	public readonly isFirstPlayerOfCurrentRoundPlafico: boolean;
 
