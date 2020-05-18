@@ -1,10 +1,11 @@
 import * as PerudoGame from "./PerudoGame";
 
-const nbPlayers = 2;
+const nbPlayers = 6;
 const game = new PerudoGame.Game(nbPlayers);
 
-console.log("Nb dices by player id", game.nbDicesByPlayerId);
-console.log("Nb dices faces of current round by player id", game.currentRoundPlayersDicesDrawByPlayerId.map(d => [...d.values()]));
+console.log("game start:");
+console.log("Nb dices of all players by player id:", game.nbDicesOfAllPlayersByPlayerId);
+console.log();
 
 const rl =
     require('readline')
@@ -14,26 +15,25 @@ const rl =
         });
 
 (function loop() {
-    const nextPlayerDices = game.currentRound.playersDicesDrawByPlayerId[game.currentRound.nextPlayerId]
-    const nbDicesByPlayerId = game.nbDicesByPlayerId;
-    const nextPlayerId = game.currentRound.nextPlayerId;
     const question =
-        `round ${game.previousRounds.length - 1}
-nb dices of other players: ${nbDicesByPlayerId.reduce((a, b) => a + b) - nbDicesByPlayerId[nextPlayerId]}
-next player id: ${nextPlayerId}
-next player dices: ${[...nextPlayerDices.values()]}
+        `round number: ${game.currentRoundNumber}
+next player id: ${game.nextPlayerId}
+next player dices detail: ${JSON.stringify(game.nextPlayerDices)}
+total nb dices of all other players: ${game.nbDicesOfOtherPlayersThanTheNextPlayer}
+nb dices of all players by player id: ${JSON.stringify(game.nbDicesOfAllPlayersByPlayerId)} 
 turn number: ${game.currentRound.turnNumber}\n`;
-    game.currentRound.lastTurn
-    rl.question((question, answer: string) => {
-        console.log(answer);
-        switch (answer.toUpperCase()) {
-            case 'Y':
-                loop();
-                return;
-            default:
-                console.log('over');
-                rl.close();
-                return;
-        }
-    });
+    rl.question(
+        question,
+        (answer: string) => {
+            console.log(question);
+            switch (answer.toUpperCase()) {
+                case 'Y':
+                    loop();
+                    return;
+                default:
+                    console.log('over');
+                    rl.close();
+                    return;
+            }
+        });
 })();

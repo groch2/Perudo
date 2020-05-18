@@ -90,15 +90,11 @@ export class Round {
 		return this._nextPlayerId;
 	}
 
-	public get turns() {
-		return this._turns;
-	}
-
 	public get endOfRound() {
 		return this._endOfRound;
 	}
 
-	public get lastTurn() {
+	private get lastTurn() {
 		return this._turns[this._turns.length - 1];
 	}
 
@@ -280,8 +276,8 @@ export class Game {
 		return this.currentRound.nextPlayerId;
 	}
 
-	public get previousRounds() {
-		return this._rounds;
+	public get currentRoundNumber() {
+		return this._rounds.length - 1;
 	}
 
 	public get nbPlayers() {
@@ -296,8 +292,16 @@ export class Game {
 		this.currentRound.playerPlays(playerChoice);
 	}
 
-	public get nbDicesByPlayerId() {
-		return this.currentRound.nbDicesByPlayer;
+	public get nbDicesOfAllPlayersByPlayerId() {
+		return this.currentRound.nbDicesByPlayer.slice(0);
+	}
+
+	public get nbDicesOfNextPlayer() {
+		return this.nbDicesOfAllPlayersByPlayerId[this.nextPlayerId];
+	}
+
+	public get nbDicesOfOtherPlayersThanTheNextPlayer() {
+		return this.nbDicesOfAllPlayersByPlayerId.reduce((a, b) => a + b) - this.nbDicesOfAllPlayersByPlayerId[this.nextPlayerId];
 	}
 
 	public get currentRoundPlayersDicesDrawByPlayerId() {
@@ -309,6 +313,10 @@ export class Game {
 			this
 				.currentRoundPlayersDicesDrawByPlayerId
 				.map(diceDraw => [...diceDraw.entries()].filter(([, quantity]) => quantity > 0).map(([diceFace, diceQuantity]) => [diceFacesNames[diceFace], diceQuantity])));
+	}
+
+	public get nextPlayerDices() {
+		return this.currentRoundPlayersDicesDrawByPlayerIdByPositiveDiceFaceNumber[this.nextPlayerId];
 	}
 }
 
