@@ -30,13 +30,13 @@ class AskForBidOrEndOfRoundProcessor {
 }
 
 class AskForBidDiceFaceProcessor {
+    // TODO: Do not allow the player to choose Paco if it is the beginning of a non plafico round
     // TODO: Get the last bid to give a clue to the player
     public readonly question = "On which dice face to you want to bid ? (Paco: 1, Two: 2, Three: 3, Four: 4, Five: 5, Six: 6)";
     constructor(private game: PerudoGame.Game) { }
     processChoice(choice: string | number, game: PerudoGame.Game): AskForBidDiceQuantityProcessor | AskForBidOrEndOfRoundProcessor {
-        // TODO: validate that the input value entered by the user is an integer of digits only
-        choice = Number.parseInt(choice as string);
-        if (choice > 0 && choice < 7) {
+        choice = Number.parseInt(choice as string) - 1;
+        if (choice >= 0 && choice < 6) {
             return new AskForBidDiceQuantityProcessor(this.game, choice);
         }
         // TODO: notifiy the user that his input is invalid and that he is redirected to the first choice (do you want to bid or end the round by calling bluff or exact match)
@@ -46,8 +46,8 @@ class AskForBidDiceFaceProcessor {
 
 class AskForBidDiceQuantityProcessor {
     // TODO: Get the last bid to give a clue to the player
-    public readonly question = "On which dice quantity to you want to bid ? (enter an integer numeric value)";
-    constructor(private game: PerudoGame.Game, private diceFace) { }
+    public readonly question = `How many ${PerudoGame.DiceFace[this.diceFace]} do you want to bid ? (enter an integer numeric value)`;
+    constructor(private game: PerudoGame.Game, private diceFace: number) { }
     processChoice(choice: string | number, game: PerudoGame.Game): AskForBidDiceQuantityProcessor | AskForBidOrEndOfRoundProcessor {
         choice = Number.parseInt(choice as string);
         this.game.playerPlays({ diceFace: (this.diceFace as PerudoGame.DiceFace), diceQuantity: choice });
@@ -58,18 +58,26 @@ class AskForBidDiceQuantityProcessor {
 class AskForEndOfRoundProcessor {
     public readonly question = "Do you want to call bluff (1) or exact match (2) ?";
     constructor(private game: PerudoGame.Game) { }
-    processChoice(choice: string, game: PerudoGame.Game): AskForBidOrEndOfRoundProcessor {
-        // TODO: use the end of round choice on the game object
-        return new AskForBidOrEndOfRoundProcessor(this.game);
+    processChoice(choice: string, game: PerudoGame.Game): AskForBidDiceFaceProcessor {
+        switch (choice) {
+            case "1":
+                this.game.playerPlays(PerudoGame.PlayerEndOfRoundCall.Bluff);
+                break;
+            case "2":
+                this.game.playerPlays(PerudoGame.PlayerEndOfRoundCall.ExactMatch);
+                break;
+
+        }
+        return new AskForBidDiceFaceProcessor(this.game);
     }
 }
 
 (function loop(processor: AskForBidOrEndOfRoundProcessor | AskForBidDiceFaceProcessor | AskForBidDiceQuantityProcessor | AskForEndOfRoundProcessor) {
     const question =
         `round number: ${game.currentRoundNumber}
-next player id: ${game.nextPlayerId}
-nb dices of next player: ${game.nbDicesOfNextPlayer}
-next player dices detail: ${JSON.stringify(game.nextPlayerDices)}
+player id: ${game.nextPlayerId}
+nb dices of player: ${game.nbDicesOfNextPlayer}
+player dices detail: ${JSON.stringify(game.nextPlayerDices)}
 total nb dices of all other players: ${game.nbDicesOfOtherPlayersThanTheNextPlayer}
 nb dices of all players by player id: ${JSON.stringify(game.nbDicesOfAllPlayersByPlayerId)} 
 turn number: ${game.currentRound.turnNumber}
@@ -85,4 +93,4 @@ ${processor.question}\n`;
             }
             loop(processor);
         });
-})(new AskForBidOrEndOfRoundProcessor(game));
+})(new AskForBidDiceFaceProcessor(game));
