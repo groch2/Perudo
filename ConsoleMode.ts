@@ -17,7 +17,7 @@ const rl =
 class AskForBidOrEndOfRoundProcessor {
     public readonly question = "Do you want to bid (1) or call for bluff or end of round (2) ?";
     constructor(private game: PerudoGame.Game) { }
-    processChoice(choice: string, game: PerudoGame.Game): AskForBidOrEndOfRoundProcessor | AskForBidDiceFaceProcessor | AskForEndOfRoundProcessor {
+    processChoice(choice: string): AskForBidOrEndOfRoundProcessor | AskForBidDiceFaceProcessor | AskForEndOfRoundProcessor {
         switch (choice) {
             case "1":
                 return new AskForBidDiceFaceProcessor(this.game);
@@ -34,7 +34,7 @@ class AskForBidDiceFaceProcessor {
     // TODO: Get the last bid to give a clue to the player
     public readonly question = "On which dice face to you want to bid ? (Paco: 1, Two: 2, Three: 3, Four: 4, Five: 5, Six: 6)";
     constructor(private game: PerudoGame.Game) { }
-    processChoice(choice: string | number, game: PerudoGame.Game): AskForBidDiceQuantityProcessor | AskForBidOrEndOfRoundProcessor {
+    processChoice(choice: string | number): AskForBidDiceQuantityProcessor | AskForBidOrEndOfRoundProcessor {
         choice = Number.parseInt(choice as string) - 1;
         if (choice >= 0 && choice < 6) {
             return new AskForBidDiceQuantityProcessor(this.game, choice);
@@ -48,12 +48,12 @@ class AskForBidDiceQuantityProcessor {
     // TODO: Get the last bid to give a clue to the player
     public readonly question = `How many ${PerudoGame.DiceFace[this.diceFace]} do you want to bid ? (enter an integer numeric value)`;
     constructor(private game: PerudoGame.Game, private diceFace: number) { }
-    processChoice(choice: string | number, game: PerudoGame.Game): AskForBidDiceQuantityProcessor | AskForBidOrEndOfRoundProcessor {
+    processChoice(choice: string | number): AskForBidDiceQuantityProcessor | AskForBidOrEndOfRoundProcessor {
         // TODO: validate that the user input is correct (it must be an integer number less than the total number of dices that are still on the table)
         // TODO: catch the error thrown by playerPlays if the bid is invalid
         // TODO: return a new AskForBidOrEndOfRoundProcessor if the user input is incorrect, or if the bid is invalid (resest the turn to allow the current player to make another choice)
         choice = Number.parseInt(choice as string);
-        this.game.playerPlays({ diceFace: (this.diceFace as PerudoGame.DiceFace), diceQuantity: choice });
+        game.playerPlays({ diceFace: (this.diceFace as PerudoGame.DiceFace), diceQuantity: choice });
         return new AskForBidOrEndOfRoundProcessor(this.game);
     }
 }
@@ -61,13 +61,13 @@ class AskForBidDiceQuantityProcessor {
 class AskForEndOfRoundProcessor {
     public readonly question = "Do you want to call bluff (1) or exact match (2) ?";
     constructor(private game: PerudoGame.Game) { }
-    processChoice(choice: string, game: PerudoGame.Game): AskForBidDiceFaceProcessor {
+    processChoice(choice: string): AskForBidDiceFaceProcessor {
         switch (choice) {
             case "1":
-                this.game.playerPlays(PerudoGame.PlayerEndOfRoundCall.Bluff);
+                game.playerPlays(PerudoGame.PlayerEndOfRoundCall.Bluff);
                 break;
             case "2":
-                this.game.playerPlays(PerudoGame.PlayerEndOfRoundCall.ExactMatch);
+                game.playerPlays(PerudoGame.PlayerEndOfRoundCall.ExactMatch);
                 break;
 
         }
@@ -88,7 +88,7 @@ ${processor.question}\n`;
     rl.question(
         question,
         (answer: string) => {
-            processor = processor.processChoice(answer, game);
+            processor = processor.processChoice(answer);
             if (game.isOver) {
                 console.log('the game is over');
                 rl.close();
