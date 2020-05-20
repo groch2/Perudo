@@ -12,8 +12,8 @@ test('Second players calls bluff and first player loose one dice', () => {
     game.currentRound.playersDicesDrawByPlayerId[1].set(PerudoGame.DiceFace.Two, 2);
     game.currentRound.playersDicesDrawByPlayerId[1].set(PerudoGame.DiceFace.Four, 1);
 
-    game.playerPlays({ diceFace: PerudoGame.DiceFace.Four, diceQuantity: 3 });
-    game.playerPlays(PerudoGame.PlayerEndOfRoundCall.Bluff);
+    game.increaseBid(3, PerudoGame.DiceFace.Four);
+    game.callBluff();
 
     expect(game.currentRound.nbDicesByPlayer[0])
         .toBe(nbDicesByPlayer[0] - 1);
@@ -34,8 +34,8 @@ test('Second players calls bluff and loose one dice', () => {
     game.currentRound.playersDicesDrawByPlayerId[1].set(PerudoGame.DiceFace.Four, 1);
     game.currentRound.playersDicesDrawByPlayerId[1].set(PerudoGame.DiceFace.Two, 2);
 
-    game.playerPlays({ diceFace: PerudoGame.DiceFace.Four, diceQuantity: 3 });
-    game.playerPlays(PerudoGame.PlayerEndOfRoundCall.Bluff);
+    game.increaseBid(3, PerudoGame.DiceFace.Four);
+    game.callBluff();
 
     expect(game.currentRound.nbDicesByPlayer[0])
         .toBe(nbDicesByPlayer[0]);

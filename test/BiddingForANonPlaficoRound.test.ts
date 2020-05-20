@@ -4,7 +4,7 @@ test('When first player is not plafico and starts by bidding pacos, then there s
     const nbDicesByPlayerId = [2, 1];
     const game = new PerudoGame.Game(nbDicesByPlayerId);
 
-    expect(() => game.playerPlays({ diceFace: PerudoGame.DiceFace.Paco, diceQuantity: 1 }))
+    expect(() => game.increaseBid(1, PerudoGame.DiceFace.Paco))
         .toThrow(PerudoGame.ErrorMessages.START_NON_PLAFICO_ROUND_BY_BIDDING_PACOS);
 });
 
@@ -13,6 +13,6 @@ test('When first player is not plafico and starts by anything but pacos, then th
     const game = new PerudoGame.Game(nbDicesByPlayerId);
 
     for (let diceFace: PerudoGame.DiceFace = PerudoGame.DiceFace.Two; diceFace < PerudoGame.diceFacesNames.length; diceFace++) {
-        game.playerPlays({ diceFace: diceFace, diceQuantity: 1 })
+        game.increaseBid(1, diceFace);
     }
 });

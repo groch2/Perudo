@@ -53,7 +53,7 @@ class AskForBidDiceQuantityProcessor {
         // TODO: catch the error thrown by playerPlays if the bid is invalid
         // TODO: return a new AskForBidOrEndOfRoundProcessor if the user input is incorrect, or if the bid is invalid (resest the turn to allow the current player to make another choice)
         choice = Number.parseInt(choice as string);
-        game.playerPlays({ diceFace: (this.diceFace as PerudoGame.DiceFace), diceQuantity: choice });
+        game.increaseBid(choice, this.diceFace as PerudoGame.DiceFace);
         return new AskForBidOrEndOfRoundProcessor(this.game);
     }
 }
@@ -64,10 +64,10 @@ class AskForEndOfRoundProcessor {
     processChoice(choice: string): AskForBidDiceFaceProcessor {
         switch (choice) {
             case "1":
-                game.playerPlays(PerudoGame.PlayerEndOfRoundCall.Bluff);
+                game.callBluff();
                 break;
             case "2":
-                game.playerPlays(PerudoGame.PlayerEndOfRoundCall.ExactMatch);
+                game.callExactMatch();
                 break;
 
         }

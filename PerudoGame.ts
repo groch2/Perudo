@@ -2,10 +2,6 @@ export const nbStartingDicesByPlayer = 5;
 
 export enum DiceFace { Paco, Two, Three, Four, Five, Six }
 
-export type PlayerDiceBid = { diceFace: DiceFace, diceQuantity: number }
-
-export enum PlayerEndOfRoundCall { Bluff, ExactMatch }
-
 enum RoundDiceOutcome { PlayerLostOneDice, PlayerRecoveredOneDice }
 
 export class ErrorMessages {
@@ -29,20 +25,17 @@ class Turn {
 	constructor(
 		readonly turnId: number,
 		readonly playerId: number,
-		readonly playerBid: PlayerDiceBid) { }
+		readonly playerBidDiceFace: DiceFace,
+		readonly playerBidDiceQuantity: number) { }
 }
 
 class EndOfRound {
 	constructor(
 		readonly lastPlayerId: number,
 		readonly beforeLastPlayerId: number,
-		readonly playerEndOfRoundCall: PlayerEndOfRoundCall,
+		readonly isEndOfRoundBluff: boolean,
 		readonly impactedPlayerId: number | undefined,
 		readonly roundDiceOutcome: RoundDiceOutcome | undefined) { }
-}
-
-function isDiceBid(playerChoice: PlayerDiceBid | PlayerEndOfRoundCall): playerChoice is PlayerDiceBid {
-	return (playerChoice as PlayerDiceBid).diceFace !== undefined;
 }
 
 export function getNextPlayerId(nbDicesByPlayerId: number[], fromPlayerId: number): number {
@@ -80,122 +73,134 @@ class Round {
 		return this._endOfRound;
 	}
 
+	public get isRoundBeginning() {
+		return this._turns.length == 0;
+	}
+
 	private get lastTurn() {
-		return this._turns[this._turns.length - 1];
+		return this.isRoundBeginning ? null : this._turns[this._turns.length - 1];
 	}
 
 	public get isOver() {
 		return this._isOver;
 	}
 
-	public playerPlays(playerChoice: PlayerDiceBid | PlayerEndOfRoundCall): void {
-		const isRoundBeginning = this._turns.length == 0;
-		const previousTurn = isRoundBeginning ? null : this.lastTurn as Turn;
+	public increaseBid(nbDices: number, diceFace: DiceFace) {
 		const currentPlayerId = this._nextPlayerId;
 		this._nextPlayerId =
-			!previousTurn ? 1 :
+			!this.lastTurn ? 1 :
 				getNextPlayerId(this.nbDicesByPlayer, currentPlayerId + 1);
-		if (isDiceBid(playerChoice)) {
-			const throwErrorWithMessageIfBiddingIsNotIncreasedByDiceFaceValueXOrByDiceQuantity = (errorMessage: string) => {
-				const diceFaceDiff = playerChoice.diceFace - previousTurn.playerBid.diceFace;
-				const diceQuantityDiff = playerChoice.diceQuantity - previousTurn.playerBid.diceQuantity;
-				if (!(diceFaceDiff == 0 && diceQuantityDiff > 0 || diceFaceDiff > 0 && diceQuantityDiff == 0)) {
-					throw new Error(errorMessage);
-				}
-			};
-			if (this.isFirstPlayerOfCurrentRoundPlafico) {
-				if (!isRoundBeginning) {
-					throwErrorWithMessageIfBiddingIsNotIncreasedByDiceFaceValueXOrByDiceQuantity(
-						ErrorMessages.BIDDING_PACOS_IN_PLAFICO_ROUND_MUST_INCREASE_THE_PREVIOUS_BID_QUANTITY);
+		const throwErrorWithMessageIfBiddingIsNotIncreasedByDiceFaceValueXOrByDiceQuantity = (errorMessage: string) => {
+			const diceFaceDiff = diceFace - this.lastTurn.playerBidDiceFace;
+			const diceQuantityDiff = nbDices - this.lastTurn.playerBidDiceQuantity;
+			if (!(diceFaceDiff == 0 && diceQuantityDiff > 0 || diceFaceDiff > 0 && diceQuantityDiff == 0)) {
+				throw new Error(errorMessage);
+			}
+		};
+		if (this.isFirstPlayerOfCurrentRoundPlafico) {
+			if (!this.isRoundBeginning) {
+				throwErrorWithMessageIfBiddingIsNotIncreasedByDiceFaceValueXOrByDiceQuantity(
+					ErrorMessages.BIDDING_PACOS_IN_PLAFICO_ROUND_MUST_INCREASE_THE_PREVIOUS_BID_QUANTITY);
+			}
+		}
+		else {
+			if (this.isRoundBeginning) {
+				if (diceFace === DiceFace.Paco) {
+					throw new Error(ErrorMessages.START_NON_PLAFICO_ROUND_BY_BIDDING_PACOS);
 				}
 			}
 			else {
-				if (isRoundBeginning) {
-					if (playerChoice.diceFace === DiceFace.Paco) {
-						throw new Error(ErrorMessages.START_NON_PLAFICO_ROUND_BY_BIDDING_PACOS);
-					}
-				}
-				else {
-					if (previousTurn.playerBid.diceFace !== DiceFace.Paco) {
-						if (playerChoice.diceFace === DiceFace.Paco) {
-							if (playerChoice.diceQuantity < Math.ceil(previousTurn.playerBid.diceQuantity / 2)) {
-								throw new Error(ErrorMessages.BID_PACO_AFTER_NON_PACO);
-							}
-						}
-						else {
-							throwErrorWithMessageIfBiddingIsNotIncreasedByDiceFaceValueXOrByDiceQuantity(
-								ErrorMessages.BIDDING_PACOS_IN_NOT_PLAFICO_ROUND_MUST_INCREASE_THE_PREVIOUS_BID_QUANTITY);
+				if (this.lastTurn.playerBidDiceFace !== DiceFace.Paco) {
+					if (diceFace === DiceFace.Paco) {
+						if (nbDices < Math.ceil(this.lastTurn.playerBidDiceQuantity / 2)) {
+							throw new Error(ErrorMessages.BID_PACO_AFTER_NON_PACO);
 						}
 					}
 					else {
-						if (playerChoice.diceFace === DiceFace.Paco) {
-							if (playerChoice.diceQuantity <= previousTurn.playerBid.diceQuantity) {
-								throw new Error(ErrorMessages.BIDDING_PACOS_AFTER_A_BID_OF_PACOS);
-							}
+						throwErrorWithMessageIfBiddingIsNotIncreasedByDiceFaceValueXOrByDiceQuantity(
+							ErrorMessages.BIDDING_PACOS_IN_NOT_PLAFICO_ROUND_MUST_INCREASE_THE_PREVIOUS_BID_QUANTITY);
+					}
+				}
+				else {
+					if (diceFace === DiceFace.Paco) {
+						if (nbDices <= this.lastTurn.playerBidDiceQuantity) {
+							throw new Error(ErrorMessages.BIDDING_PACOS_AFTER_A_BID_OF_PACOS);
 						}
-						else {
-							if (playerChoice.diceQuantity <= previousTurn.playerBid.diceQuantity * 2) {
-								throw new Error(ErrorMessages.BIDDING_NON_PACOS_AFTER_A_BID_OF_PACOS);
-							}
+					}
+					else {
+						if (nbDices <= this.lastTurn.playerBidDiceQuantity * 2) {
+							throw new Error(ErrorMessages.BIDDING_NON_PACOS_AFTER_A_BID_OF_PACOS);
 						}
 					}
 				}
 			}
-			this._turns.push(
-				new Turn(
-					isRoundBeginning ? 0 : previousTurn.turnId + 1,
-					currentPlayerId,
-					playerChoice));
 		}
-		else {
-			if (isRoundBeginning) {
-				throw Error(ErrorMessages.CALLING_BLUFF_OR_EXACT_MATCH_AT_THE_BEGINNING_OF_THE_ROUND);
-			}
-			const countPacosAsJoker = previousTurn.playerBid.diceFace !== DiceFace.Paco && !this.isFirstPlayerOfCurrentRoundPlafico;
-			const nbDicesMatchingLastBid =
-				this.playersDicesDrawByPlayerId.reduce((diceTotal, playerDices) => {
-					return diceTotal + playerDices.get(previousTurn.playerBid.diceFace) + (countPacosAsJoker ? playerDices.get(DiceFace.Paco) : 0);
-				}, 0);
-			let impactedPlayerId: undefined | number;
-			let roundDiceOutcome: RoundDiceOutcome | undefined;
-			switch (playerChoice) {
-				case PlayerEndOfRoundCall.Bluff:
-					roundDiceOutcome = RoundDiceOutcome.PlayerLostOneDice;
-					impactedPlayerId =
-						nbDicesMatchingLastBid < previousTurn.playerBid.diceQuantity ?
-							previousTurn.playerId :
-							currentPlayerId;
-					this.nbDicesByPlayer[impactedPlayerId]--;
-					break;
-				case PlayerEndOfRoundCall.ExactMatch:
-					const isExactMatch = previousTurn.playerBid.diceQuantity === nbDicesMatchingLastBid;
-					const nbDicesOfLastPlayer = this.nbDicesByPlayer[currentPlayerId];
-					[impactedPlayerId, roundDiceOutcome] =
-						(() => {
-							if (isExactMatch) {
-								if (nbDicesOfLastPlayer < nbStartingDicesByPlayer) {
-									this.nbDicesByPlayer[currentPlayerId]++;
-									return [currentPlayerId, RoundDiceOutcome.PlayerRecoveredOneDice];
-								}
-								return [undefined, undefined];
-							}
-							this.nbDicesByPlayer[currentPlayerId]--;
-							return [currentPlayerId, RoundDiceOutcome.PlayerLostOneDice];
-						})();
-					break;
-				default:
-					throw new Error("unknown end of round call");
-			}
-			this._endOfRound =
-				new EndOfRound(
-					currentPlayerId,
-					previousTurn.playerId,
-					playerChoice,
-					impactedPlayerId,
-					roundDiceOutcome);
-			this._isOver = true;
+		this._turns.push(
+			new Turn(
+				this.isRoundBeginning ? 0 : this.lastTurn.turnId + 1,
+				currentPlayerId,
+				diceFace,
+				nbDices));
+	}
+
+	public callBluff() {
+		if (this.isRoundBeginning) {
+			throw Error(ErrorMessages.CALLING_BLUFF_OR_EXACT_MATCH_AT_THE_BEGINNING_OF_THE_ROUND);
 		}
-	};
+		const countPacosAsJoker = this.lastTurn.playerBidDiceFace !== DiceFace.Paco && !this.isFirstPlayerOfCurrentRoundPlafico;
+		const nbDicesMatchingLastBid =
+			this.playersDicesDrawByPlayerId.reduce((diceTotal, playerDices) => {
+				return diceTotal + playerDices.get(this.lastTurn.playerBidDiceFace) + (countPacosAsJoker ? playerDices.get(DiceFace.Paco) : 0);
+			}, 0);
+		const impactedPlayerId =
+			nbDicesMatchingLastBid < this.lastTurn.playerBidDiceQuantity ?
+				this.lastTurn.playerId :
+				this.nextPlayerId;
+		this.nbDicesByPlayer[impactedPlayerId]--;
+		this._endOfRound =
+			new EndOfRound(
+				this.nextPlayerId,
+				this.lastTurn.playerId,
+				false,
+				impactedPlayerId,
+				RoundDiceOutcome.PlayerLostOneDice);
+		this._isOver = true;
+	}
+
+	public callExactMatch() {
+		if (this.isRoundBeginning) {
+			throw Error(ErrorMessages.CALLING_BLUFF_OR_EXACT_MATCH_AT_THE_BEGINNING_OF_THE_ROUND);
+		}
+		const countPacosAsJoker = this.lastTurn.playerBidDiceFace !== DiceFace.Paco && !this.isFirstPlayerOfCurrentRoundPlafico;
+		const nbDicesMatchingLastBid =
+			this.playersDicesDrawByPlayerId.reduce((diceTotal, playerDices) => {
+				return diceTotal + playerDices.get(this.lastTurn.playerBidDiceFace) + (countPacosAsJoker ? playerDices.get(DiceFace.Paco) : 0);
+			}, 0);
+		let impactedPlayerId: undefined | number;
+		let roundDiceOutcome: RoundDiceOutcome | undefined;
+		const isExactMatch = this.lastTurn.playerBidDiceQuantity === nbDicesMatchingLastBid;
+		const nbDicesOfLastPlayer = this.nbDicesByPlayer[this.nextPlayerId];
+		[impactedPlayerId, roundDiceOutcome] =
+			(() => {
+				if (isExactMatch) {
+					if (nbDicesOfLastPlayer < nbStartingDicesByPlayer) {
+						this.nbDicesByPlayer[this.nextPlayerId]++;
+						return [this.nextPlayerId, RoundDiceOutcome.PlayerRecoveredOneDice];
+					}
+					return [undefined, undefined];
+				}
+				this.nbDicesByPlayer[this.nextPlayerId]--;
+				return [this.nextPlayerId, RoundDiceOutcome.PlayerLostOneDice];
+			})();
+		this._endOfRound =
+			new EndOfRound(
+				this.nextPlayerId,
+				this.lastTurn.playerId,
+				false,
+				impactedPlayerId,
+				roundDiceOutcome);
+		this._isOver = true;
+	}
 
 	public get totalNbDicesByFaceIndex() {
 		const nbDiceByFace = new Array<number>(diceFacesNames.length).fill(0);
@@ -256,7 +261,7 @@ export class Game {
 
 	// TODO: make this getter private. It exposes a way to mutate the state of the game, and it should not.
 	public get currentRound() {
-		return this._rounds[this._rounds.length - 1];
+		return this._rounds[Math.max(this._rounds.length - 1, 0)];
 	}
 
 	public get nextPlayerId() {
@@ -275,11 +280,18 @@ export class Game {
 		return this._isOver;
 	}
 
-	public playerPlays(playerChoice: PlayerDiceBid | PlayerEndOfRoundCall): void {
-		this.currentRound.playerPlays(playerChoice);
-		if (this.currentRound.isOver) {
-			this.initializeNewRound()
-		}
+	public increaseBid(nbDices: number, diceFace: DiceFace) {
+		this.currentRound.increaseBid(nbDices, diceFace);
+	}
+
+	public callBluff() {
+		this.currentRound.callBluff();
+		this.initializeNewRound();
+	}
+
+	public callExactMatch() {
+		this.currentRound.callExactMatch();
+		this.initializeNewRound();
 	}
 
 	public get nbDicesOfAllPlayersByPlayerId() {

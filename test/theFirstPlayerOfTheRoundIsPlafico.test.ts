@@ -11,9 +11,9 @@ test('When a player looses a dice and has more than one dice left, then he is no
     game.currentRound.playersDicesDrawByPlayerId[1].set(PerudoGame.DiceFace.Three, 3);
     game.currentRound.playersDicesDrawByPlayerId[1].set(PerudoGame.DiceFace.Four, 1);
 
-    game.playerPlays({ diceFace: PerudoGame.DiceFace.Two, diceQuantity: 3 });
-    game.playerPlays({ diceFace: PerudoGame.DiceFace.Two, diceQuantity: 4 });
-    game.playerPlays(PerudoGame.PlayerEndOfRoundCall.Bluff);
+    game.increaseBid(3, PerudoGame.DiceFace.Two);
+    game.increaseBid(4, PerudoGame.DiceFace.Two);
+    game.callBluff();
 
     expect(game.currentRound.isFirstPlayerOfCurrentRoundPlafico)
         .toBe(false);
@@ -27,9 +27,9 @@ test('When a player looses a dice and has one dice left, then he is plafico.', (
     game.currentRound.playersDicesDrawByPlayerId[1].set(PerudoGame.DiceFace.Three, 3);
     game.currentRound.playersDicesDrawByPlayerId[1].set(PerudoGame.DiceFace.Four, 1);
 
-    game.playerPlays({ diceFace: PerudoGame.DiceFace.Two, diceQuantity: 3 });
-    game.playerPlays({ diceFace: PerudoGame.DiceFace.Two, diceQuantity: 4 });
-    game.playerPlays(PerudoGame.PlayerEndOfRoundCall.Bluff);
+    game.increaseBid(3, PerudoGame.DiceFace.Two);
+    game.increaseBid(4, PerudoGame.DiceFace.Two);
+    game.callBluff();
 
     expect(game.currentRound.isFirstPlayerOfCurrentRoundPlafico)
         .toBe(true);

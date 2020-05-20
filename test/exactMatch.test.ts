@@ -14,9 +14,9 @@ test('Third player calls exact match and looses one dice', () => {
 
     game.currentRound.playersDicesDrawByPlayerId[2].set(PerudoGame.DiceFace.Four, 2);
 
-    game.playerPlays({ diceFace: PerudoGame.DiceFace.Four, diceQuantity: 4 });
-    game.playerPlays({ diceFace: PerudoGame.DiceFace.Four, diceQuantity: 5 });
-    game.playerPlays(PerudoGame.PlayerEndOfRoundCall.ExactMatch);
+    game.increaseBid(4, PerudoGame.DiceFace.Four);
+    game.increaseBid(5, PerudoGame.DiceFace.Four);
+    game.callExactMatch();
 
     for (let playerId = 0; playerId < 2; playerId++) {
         expect(game.currentRound.nbDicesByPlayer[playerId])
@@ -38,9 +38,9 @@ test('Second players calls exact match and wins one dice', () => {
 
     game.currentRound.playersDicesDrawByPlayerId[2].set(PerudoGame.DiceFace.Four, 2);
 
-    game.playerPlays({ diceFace: PerudoGame.DiceFace.Four, diceQuantity: 3 });
-    game.playerPlays({ diceFace: PerudoGame.DiceFace.Four, diceQuantity: 4 });
-    game.playerPlays(PerudoGame.PlayerEndOfRoundCall.ExactMatch);
+    game.increaseBid(3, PerudoGame.DiceFace.Four);
+    game.increaseBid(4, PerudoGame.DiceFace.Four);
+    game.callExactMatch();
 
     for (let playerId = 0; playerId < 2; playerId++) {
         expect(game.currentRound.nbDicesByPlayer[playerId])
@@ -62,9 +62,9 @@ test('Second players calls exact match and does not win any dice, because he alr
 
     game.currentRound.playersDicesDrawByPlayerId[2].set(PerudoGame.DiceFace.Four, PerudoGame.nbStartingDicesByPlayer);
 
-    game.playerPlays({ diceFace: PerudoGame.DiceFace.Three, diceQuantity: 3 });
-    game.playerPlays({ diceFace: PerudoGame.DiceFace.Three, diceQuantity: 4 });
-    game.playerPlays(PerudoGame.PlayerEndOfRoundCall.ExactMatch);
+    game.increaseBid(3, PerudoGame.DiceFace.Three);
+    game.increaseBid(4, PerudoGame.DiceFace.Three);
+    game.callExactMatch();
 
     for (let playerId = 0; playerId < 2; playerId++) {
         expect(game.currentRound.nbDicesByPlayer[playerId])
