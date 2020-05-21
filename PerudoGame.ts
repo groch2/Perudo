@@ -18,7 +18,8 @@ export class ErrorMessages {
 	public static readonly BIDDING_NON_PACOS_AFTER_A_BID_OF_PACOS =
 		"a bid of other dice face than paco following a bid of pacos must be greater than twice the number of dices of the previous bid";
 	public static readonly CALLING_BLUFF_OR_EXACT_MATCH_AT_THE_BEGINNING_OF_THE_ROUND =
-		"It is an error to call a bluff or an exact match at the beginning of the round, before any bid was made."
+		"It is an error to call a bluff or an exact match at the beginning of the round, before any bid was made.";
+	public static readonly GAME_OVER = "The game is over";
 }
 
 class Turn {
@@ -54,7 +55,6 @@ class Round {
 	constructor(
 		private _turns: Turn[],
 		private _endOfRound: EndOfRound,
-		private _isOver: boolean,
 		public readonly nbPlayers: number,
 		public readonly nbDicesByPlayer: number[],
 		readonly playersDicesDrawByPlayerId: Map<DiceFace, number>[],
@@ -79,10 +79,6 @@ class Round {
 
 	private get lastTurn() {
 		return this.isRoundBeginning ? null : this._turns[this._turns.length - 1];
-	}
-
-	public get isOver() {
-		return this._isOver;
 	}
 
 	public increaseBid(nbDices: number, diceFace: DiceFace) {
@@ -164,7 +160,6 @@ class Round {
 				false,
 				impactedPlayerId,
 				RoundDiceOutcome.PlayerLostOneDice);
-		this._isOver = true;
 	}
 
 	public callExactMatch() {
@@ -199,7 +194,6 @@ class Round {
 				false,
 				impactedPlayerId,
 				roundDiceOutcome);
-		this._isOver = true;
 	}
 
 	public get totalNbDicesByFaceIndex() {
@@ -224,7 +218,6 @@ class Round {
 }
 
 export class Game {
-	private _isOver: boolean;
 	private _nbPlayers: number;
 	private _rounds: Round[];
 
@@ -236,14 +229,13 @@ export class Game {
 				nbDicesByPlayer.slice(0) :
 				new Array(nbPlayers).fill(nbStartingDicesByPlayer);
 
-		this._isOver = false;
 		this._nbPlayers = nbPlayers || nbDicesByPlayer.length;
 
 		const playersDicesDrawByPlayerId =
 			nbDicesByPlayer.map(nbStartingDices => getDrawByThrowingDices(nbStartingDices));
 
 		this._rounds = [];
-		const firstRound = new Round([], null, false, this.nbPlayers, nbDicesByPlayer, playersDicesDrawByPlayerId, 0);
+		const firstRound = new Round([], null, this.nbPlayers, nbDicesByPlayer, playersDicesDrawByPlayerId, 0);
 		this._rounds.push(firstRound);
 	}
 
@@ -255,13 +247,13 @@ export class Game {
 				.map(playerId => getDrawByThrowingDices(nbDicesOfEachPlayerByPlayerId[playerId]));
 		const firstPlayerId =
 			getNextPlayerId(nbDicesOfEachPlayerByPlayerId, this.currentRound.endOfRound.impactedPlayerId);
-		const newRound = new Round([], null, false, this._nbPlayers, nbDicesOfEachPlayerByPlayerId, playersDicesDrawByPlayerId, firstPlayerId);
+		const newRound = new Round([], null, this._nbPlayers, nbDicesOfEachPlayerByPlayerId, playersDicesDrawByPlayerId, firstPlayerId);
 		this._rounds.push(newRound);
 	}
 
 	// TODO: make this getter private. It exposes a way to mutate the state of the game, and it should not.
 	public get currentRound() {
-		return this._rounds[Math.max(this._rounds.length - 1, 0)];
+		return this._rounds[this._rounds.length - 1];
 	}
 
 	public get nextPlayerId() {
@@ -277,21 +269,34 @@ export class Game {
 	}
 
 	public get isOver() {
-		return this._isOver;
+		return this.nbDicesOfAllPlayersByPlayerId.filter(nbDices => nbDices > 0).length == 1;
 	}
 
 	public increaseBid(nbDices: number, diceFace: DiceFace) {
+		if (this.isOver) {
+			throw new Error(ErrorMessages.GAME_OVER);
+		}
 		this.currentRound.increaseBid(nbDices, diceFace);
 	}
 
 	public callBluff() {
+		if (this.isOver) {
+			throw new Error(ErrorMessages.GAME_OVER);
+		}
 		this.currentRound.callBluff();
-		this.initializeNewRound();
+		if (!this.isOver) {
+			this.initializeNewRound();
+		}
 	}
 
 	public callExactMatch() {
+		if (this.isOver) {
+			throw new Error(ErrorMessages.GAME_OVER);
+		}
 		this.currentRound.callExactMatch();
-		this.initializeNewRound();
+		if (!this.isOver) {
+			this.initializeNewRound();
+		}
 	}
 
 	public get nbDicesOfAllPlayersByPlayerId() {
