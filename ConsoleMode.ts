@@ -4,7 +4,7 @@ const nbPlayers = 2;
 const game = new PerudoGame.Game(nbPlayers);
 
 console.log("game start:");
-console.log("Nb dices of all players by player id:", game.nbDicesOfAllPlayersByPlayerId);
+console.log("Nb dices of all players by player id:", game.nbDicesByPlayerId);
 console.log();
 
 const rl =
@@ -82,7 +82,7 @@ player id: ${game.nextPlayerId}
 nb dices of player: ${game.nbDicesOfNextPlayer}
 player dices detail: ${JSON.stringify(game.nextPlayerDices)}
 total nb dices of all other players: ${game.nbDicesOfOtherPlayersThanTheNextPlayer}
-nb dices of all players by player id: ${JSON.stringify(game.nbDicesOfAllPlayersByPlayerId)} 
+nb dices of all players by player id: ${JSON.stringify(game.nbDicesByPlayerId)} 
 turn number: ${game.currentRound.turnNumber}
 ${processor.question}\n`;
     rl.question(

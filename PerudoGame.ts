@@ -220,6 +220,7 @@ class Round {
 export class Game {
 	private _nbPlayers: number;
 	private _rounds: Round[];
+	private _nbPlayersNotEliminated: number;
 
 	public constructor(nbPlayersOrNbDicesByPlayer: number | number[]) {
 		const nbPlayers = nbPlayersOrNbDicesByPlayer as number;
@@ -230,6 +231,7 @@ export class Game {
 				new Array(nbPlayers).fill(nbStartingDicesByPlayer);
 
 		this._nbPlayers = nbPlayers || nbDicesByPlayer.length;
+		this._nbPlayersNotEliminated = nbDicesByPlayer.filter(nbDices => nbDices > 0).length;
 
 		const playersDicesDrawByPlayerId =
 			nbDicesByPlayer.map(nbStartingDices => getDrawByThrowingDices(nbStartingDices));
@@ -269,7 +271,7 @@ export class Game {
 	}
 
 	public get isOver() {
-		return this.nbDicesOfAllPlayersByPlayerId.filter(nbDices => nbDices > 0).length == 1;
+		return this._nbPlayersNotEliminated == 1;
 	}
 
 	public increaseBid(nbDices: number, diceFace: DiceFace) {
@@ -280,35 +282,36 @@ export class Game {
 	}
 
 	public callBluff() {
-		if (this.isOver) {
-			throw new Error(ErrorMessages.GAME_OVER);
-		}
-		this.currentRound.callBluff();
-		if (!this.isOver) {
-			this.initializeNewRound();
-		}
+		this.callEndOfRoundMethod(() => this.currentRound.callBluff());
 	}
 
 	public callExactMatch() {
+		this.callEndOfRoundMethod(() => this.currentRound.callExactMatch());
+	}
+
+	private callEndOfRoundMethod(endOfRoundMethod: () => void) {
 		if (this.isOver) {
 			throw new Error(ErrorMessages.GAME_OVER);
 		}
-		this.currentRound.callExactMatch();
+		endOfRoundMethod();
+		if(this.nbDicesByPlayerId[this.currentRound.endOfRound.impactedPlayerId] == 0){
+			this._nbPlayersNotEliminated--;
+		}
 		if (!this.isOver) {
 			this.initializeNewRound();
 		}
 	}
 
-	public get nbDicesOfAllPlayersByPlayerId() {
+	public get nbDicesByPlayerId() {
 		return this.currentRound.nbDicesByPlayer.slice(0);
 	}
 
 	public get nbDicesOfNextPlayer() {
-		return this.nbDicesOfAllPlayersByPlayerId[this.nextPlayerId];
+		return this.nbDicesByPlayerId[this.nextPlayerId];
 	}
 
 	public get nbDicesOfOtherPlayersThanTheNextPlayer() {
-		return this.nbDicesOfAllPlayersByPlayerId.reduce((a, b) => a + b) - this.nbDicesOfAllPlayersByPlayerId[this.nextPlayerId];
+		return this.nbDicesByPlayerId.reduce((a, b) => a + b) - this.nbDicesByPlayerId[this.nextPlayerId];
 	}
 
 	public get currentRoundPlayersDicesDrawByPlayerIdByPositiveDiceFaceNumber() {

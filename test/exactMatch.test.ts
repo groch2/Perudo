@@ -73,3 +73,18 @@ test('Second players calls exact match and does not win any dice, because he alr
     expect(game.currentRound.nbDicesByPlayer[2])
         .toBe(nbDicesByPlayer[2]);
 });
+
+test('Second player calls exact match and looses one dice and is eliminated', () => {
+    const nbDicesByPlayer = [2, 1];
+    const game = new PerudoGame.Game(nbDicesByPlayer.slice(0));
+
+    game.currentRound.playersDicesDrawByPlayerId[0].set(PerudoGame.DiceFace.Two, 2);
+    game.currentRound.playersDicesDrawByPlayerId[1].set(PerudoGame.DiceFace.Three, 1);
+
+    game.increaseBid(2, PerudoGame.DiceFace.Three);
+    game.callExactMatch();
+
+    expect(game.isOver)
+        .toBe(true);
+});
+
