@@ -1,4 +1,4 @@
-import * as PerudoGame from "../PerudoGame";
+import * as PerudoGame from "../perudoGame";
 
 test('When a player bids pacos, and the next players bids pacos and increases the number of dice compared to the previous bid, then there should be no error', () => {
     const nbPlayers = 3;

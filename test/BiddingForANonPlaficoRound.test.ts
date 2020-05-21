@@ -1,4 +1,4 @@
-import * as PerudoGame from "../PerudoGame";
+import * as PerudoGame from "../perudoGame";
 
 test('When first player is not plafico and starts by bidding pacos, then there should be an error', () => {
     const nbDicesByPlayerId = [2, 1];

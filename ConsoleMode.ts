@@ -1,4 +1,4 @@
-import * as PerudoGame from "./PerudoGame";
+import * as PerudoGame from "./perudoGame";
 
 const nbPlayers = 2;
 const game = new PerudoGame.Game(nbPlayers);

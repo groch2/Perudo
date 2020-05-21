@@ -1,4 +1,4 @@
-import * as PerudoGame from "../PerudoGame";
+import * as PerudoGame from "../perudoGame";
 
 test('When the first player calls bluff at the beginning of the round, then there should be an error', () => {
     const nbPlayers = 2;

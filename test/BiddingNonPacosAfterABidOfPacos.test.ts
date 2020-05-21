@@ -1,4 +1,4 @@
-import * as PerudoGame from "../PerudoGame";
+import * as PerudoGame from "../perudoGame";
 
 test('When a player bids pacos, and the next players bids non pacos and bids twice the quantity of the previous bid plus one, then there should be no error', () => {
     const nbPlayers = 3;

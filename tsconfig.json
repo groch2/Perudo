@@ -13,8 +13,8 @@
         "sourceMap": true
     },
     "files": [
-        "PerudoGame.ts",
-        "ConsoleMode.ts"
+        "perudoGame.ts",
+        "consoleMode.ts"
     ],
     "include": [
         "test/*.ts"

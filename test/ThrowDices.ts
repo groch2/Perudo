@@ -1,4 +1,4 @@
-import * as  PerudoGame from "../PerudoGame";
+import * as  PerudoGame from "../perudoGame";
 
 const diceDraw = PerudoGame.getDrawByThrowingDices(5);
 const onlyPositiveDiceQuantityByFace = [...diceDraw.entries()].filter(([, quantity]) => quantity > 0);
