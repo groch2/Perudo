@@ -53,12 +53,12 @@ class Round {
 	public readonly isFirstPlayerOfCurrentRoundPlafico: boolean;
 
 	constructor(
-		private _turns: Turn[],
-		private _endOfRound: EndOfRound,
 		public readonly nbPlayers: number,
 		public readonly nbDicesByPlayer: number[],
 		readonly playersDicesDrawByPlayerId: Map<DiceFace, number>[],
-		readonly firstPlayerId: number) {
+		readonly firstPlayerId: number,
+		private _turns: Turn[] = new Array<Turn>(),
+		private _endOfRound: EndOfRound = null) {
 		this.isFirstPlayerOfCurrentRoundPlafico =
 			nbDicesByPlayer[firstPlayerId] === 1;
 		this._nextPlayerId = 0;
@@ -177,15 +177,15 @@ class Round {
 		const nbDicesOfLastPlayer = this.nbDicesByPlayer[this.nextPlayerId];
 		[impactedPlayerId, roundDiceOutcome] =
 			(() => {
-				if (isExactMatch) {
-					if (nbDicesOfLastPlayer < nbStartingDicesByPlayer) {
-						this.nbDicesByPlayer[this.nextPlayerId]++;
-						return [this.nextPlayerId, RoundDiceOutcome.PlayerRecoveredOneDice];
-					}
-					return [undefined, undefined];
+				if (!isExactMatch) {
+					this.nbDicesByPlayer[this.nextPlayerId]--;
+					return [this.nextPlayerId, RoundDiceOutcome.PlayerLostOneDice];
 				}
-				this.nbDicesByPlayer[this.nextPlayerId]--;
-				return [this.nextPlayerId, RoundDiceOutcome.PlayerLostOneDice];
+				if (nbDicesOfLastPlayer < nbStartingDicesByPlayer) {
+					this.nbDicesByPlayer[this.nextPlayerId]++;
+					return [this.nextPlayerId, RoundDiceOutcome.PlayerRecoveredOneDice];
+				}
+				return [undefined, undefined];
 			})();
 		this._endOfRound =
 			new EndOfRound(
@@ -235,7 +235,7 @@ export class Game {
 			nbDicesByPlayer.map(nbStartingDices => getDrawByThrowingDices(nbStartingDices));
 
 		this._rounds = [];
-		const firstRound = new Round([], null, this.nbPlayers, nbDicesByPlayer, playersDicesDrawByPlayerId, 0);
+		const firstRound = new Round(nbPlayers, nbDicesByPlayer, playersDicesDrawByPlayerId, 0);
 		this._rounds.push(firstRound);
 	}
 
@@ -247,7 +247,7 @@ export class Game {
 				.map(playerId => getDrawByThrowingDices(nbDicesOfEachPlayerByPlayerId[playerId]));
 		const firstPlayerId =
 			getNextPlayerId(nbDicesOfEachPlayerByPlayerId, this.currentRound.endOfRound.impactedPlayerId);
-		const newRound = new Round([], null, this._nbPlayers, nbDicesOfEachPlayerByPlayerId, playersDicesDrawByPlayerId, firstPlayerId);
+		const newRound = new Round(this._nbPlayers, nbDicesOfEachPlayerByPlayerId, playersDicesDrawByPlayerId, firstPlayerId);
 		this._rounds.push(newRound);
 	}
 
