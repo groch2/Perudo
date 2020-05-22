@@ -225,21 +225,20 @@ export class Game {
 	private _nbPlayersNotEliminated: number;
 
 	public constructor(nbPlayersOrNbDicesByPlayer: number | number[]) {
-		const nbPlayers = nbPlayersOrNbDicesByPlayer as number;
 		let nbDicesByPlayer = nbPlayersOrNbDicesByPlayer as number[]
 		nbDicesByPlayer =
 			nbDicesByPlayer.length ?
-				nbDicesByPlayer.slice(0) :
-				new Array(nbPlayers).fill(nbStartingDicesByPlayer);
+				nbDicesByPlayer :
+				new Array(nbPlayersOrNbDicesByPlayer as number).fill(nbStartingDicesByPlayer);
 
-		this._nbPlayers = nbPlayers || nbDicesByPlayer.length;
+		this._nbPlayers = nbDicesByPlayer.length;
 		this._nbPlayersNotEliminated = nbDicesByPlayer.filter(nbDices => nbDices > 0).length;
 
 		const playersDicesDrawByPlayerId =
 			nbDicesByPlayer.map(nbStartingDices => getDrawByThrowingDices(nbStartingDices));
 
 		this._rounds = [];
-		const firstRound = new Round(nbPlayers, nbDicesByPlayer, playersDicesDrawByPlayerId, 0);
+		const firstRound = new Round(this._nbPlayers, nbDicesByPlayer, playersDicesDrawByPlayerId, 0);
 		this._rounds.push(firstRound);
 	}
 
