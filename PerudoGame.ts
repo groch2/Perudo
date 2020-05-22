@@ -63,7 +63,7 @@ class Round {
 		private _endOfRound: EndOfRound = null) {
 		this.isFirstPlayerOfCurrentRoundPlafico =
 			nbDicesByPlayer[firstPlayerId] === 1;
-		this._nextPlayerId = 0;
+		this._nextPlayerId = firstPlayerId;
 	}
 
 	private _nextPlayerId: number;

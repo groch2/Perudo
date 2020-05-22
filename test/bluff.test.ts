@@ -20,7 +20,7 @@ test('Second players calls bluff and first player loose one dice', () => {
     expect(game.currentRound.nbDicesByPlayer[1])
         .toBe(nbDicesByPlayer[1]);
 
-    expect(game.currentRound.firstPlayerId)
+    expect(game.currentRound.nextPlayerId)
         .toBe(0);
 });
 
@@ -42,6 +42,6 @@ test('Second players calls bluff and loose one dice', () => {
     expect(game.currentRound.nbDicesByPlayer[1])
         .toBe(nbDicesByPlayer[1] - 1);
 
-    expect(game.currentRound.firstPlayerId)
+    expect(game.currentRound.nextPlayerId)
         .toBe(1);
 });
