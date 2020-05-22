@@ -198,7 +198,7 @@ class Round {
 				roundDiceOutcome);
 	}
 
-	public get totalNbDicesByFaceIndex() {
+	private get totalNbDicesByFaceIndex() {
 		const nbDiceByFace = new Array<number>(diceFacesNames.length).fill(0);
 		this.playersDicesDrawByPlayerId.forEach(playerDices => {
 			for (let [diceFace, quantity] of playerDices) {
@@ -208,7 +208,8 @@ class Round {
 		return nbDiceByFace;
 	}
 
-	public get totalPositiveNbDicesByFaceName() {
+	// for each dice face for which there is at least on dice on that face, return the number of dices that are on that face in the current round
+	public get totalOfPositiveNbOfDicesByFaceName() {
 		return [...this.totalNbDicesByFaceIndex.entries()]
 			.map(([diceFaceIndex, diceQuantity]) => [diceFacesNames[diceFaceIndex], diceQuantity])
 			.filter(([, quantity]) => quantity > 0);
