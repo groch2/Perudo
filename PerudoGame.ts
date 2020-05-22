@@ -316,15 +316,19 @@ export class Game {
 		return this.nbDicesByPlayerId.reduce((a, b) => a + b) - this.nbDicesByPlayerId[this.nextPlayerId];
 	}
 
-	public get currentRoundPlayersDicesDrawByPlayerIdByPositiveDiceFaceNumber() {
+	public get currentRoundPlayersDicesDrawByPlayerId() {
 		return (
 			this
-				.currentRound.playersDicesDrawByPlayerId
-				.map(diceDraw => [...diceDraw.entries()].filter(([, quantity]) => quantity > 0).map(([diceFace, diceQuantity]) => [diceFacesNames[diceFace], diceQuantity])));
+				.currentRound
+				.playersDicesDrawByPlayerId
+				.map(diceDraw => 
+					[...diceDraw.entries()]
+						.filter(([, quantity]) => quantity > 0)
+						.map(([diceFace, diceQuantity]) => [diceFacesNames[diceFace], diceQuantity])));
 	}
 
 	public get nextPlayerDices() {
-		return this.currentRoundPlayersDicesDrawByPlayerIdByPositiveDiceFaceNumber[this.nextPlayerId];
+		return this.currentRoundPlayersDicesDrawByPlayerId[this.nextPlayerId];
 	}
 }
 
