@@ -296,7 +296,7 @@ export class Game {
 			throw new Error(ErrorMessages.GAME_OVER);
 		}
 		endOfRoundMethod.call(this.currentRound);
-		if(this.nbDicesByPlayerId[this.currentRound.endOfRound.impactedPlayerId] == 0){
+		if (this.nbDicesByPlayerId[this.currentRound.endOfRound.impactedPlayerId] == 0) {
 			this._nbPlayersNotEliminated--;
 		}
 		if (!this.isOver) {
