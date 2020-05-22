@@ -39,6 +39,7 @@ class EndOfRound {
 		readonly roundDiceOutcome: RoundDiceOutcome | undefined) { }
 }
 
+// returns the id of the the player that is supposed to play after the player whose id is fromPlayerId
 export function getNextPlayerId(nbDicesByPlayerId: number[], fromPlayerId: number): number {
 	return (
 		(nbDicesByPlayerId
@@ -50,6 +51,7 @@ export function getNextPlayerId(nbDicesByPlayerId: number[], fromPlayerId: numbe
 
 class Round {
 	// if the first player of the round has only one dice left, then he or she is plafico and the pacos does not count has jokers during this round
+	// and he or she can start the round by bidding pacos
 	public readonly isFirstPlayerOfCurrentRoundPlafico: boolean;
 
 	constructor(
@@ -157,7 +159,7 @@ class Round {
 			new EndOfRound(
 				this.nextPlayerId,
 				this.lastTurn.playerId,
-				false,
+				true,
 				impactedPlayerId,
 				RoundDiceOutcome.PlayerLostOneDice);
 	}
@@ -208,7 +210,7 @@ class Round {
 
 	public get totalPositiveNbDicesByFaceName() {
 		return [...this.totalNbDicesByFaceIndex.entries()]
-			.map(([diceNameIndex, diceQuantity]) => [diceFacesNames[diceNameIndex], diceQuantity])
+			.map(([diceFaceIndex, diceQuantity]) => [diceFacesNames[diceFaceIndex], diceQuantity])
 			.filter(([, quantity]) => quantity > 0);
 	}
 
@@ -350,7 +352,7 @@ export function getDrawByThrowingDices(nbDices: number): Map<DiceFace, number> {
 	}
 	new Array(nbDices)
 		.fill(0)
-		.map(_ => Math.trunc((Math.random() * diceFacesNames.length)) as DiceFace)
+		.map(() => Math.trunc((Math.random() * diceFacesNames.length)) as DiceFace)
 		.forEach(diceFace => nbDiceByFace.set(diceFace, nbDiceByFace.get(diceFace) + 1));
 	return nbDiceByFace;
 }
