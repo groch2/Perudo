@@ -81,7 +81,7 @@ class Round {
 		return this.isRoundBeginning ? null : this._turns[this._turns.length - 1];
 	}
 
-	public increaseBid(nbDices: number, diceFace: DiceFace) {
+	public bid(nbDices: number, diceFace: DiceFace) {
 		const currentPlayerId = this._nextPlayerId;
 		this._nextPlayerId =
 			!this.lastTurn ? 1 :
@@ -278,7 +278,7 @@ export class Game {
 		if (this.isOver) {
 			throw new Error(ErrorMessages.GAME_OVER);
 		}
-		this.currentRound.increaseBid(nbDices, diceFace);
+		this.currentRound.bid(nbDices, diceFace);
 	}
 
 	public callBluff() {
