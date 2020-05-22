@@ -10,8 +10,8 @@ test('If the second players looses the round and is out of dice and the third pl
     game.currentRound.playersDicesDrawByPlayerId[1].set(PerudoGame.DiceFace.Three, nbDicesByPlayer[1]);
     game.currentRound.playersDicesDrawByPlayerId[2].set(PerudoGame.DiceFace.Four, nbDicesByPlayer[2]);
 
-    game.increaseBid(2, PerudoGame.DiceFace.Two);
-    game.increaseBid(3, PerudoGame.DiceFace.Two);
+    game.bid(2, PerudoGame.DiceFace.Two);
+    game.bid(3, PerudoGame.DiceFace.Two);
     game.callBluff();
 
     expect(game.currentRound.nbDicesByPlayer[0])
@@ -33,8 +33,8 @@ test('If the second players looses the round and is out of dice and the third pl
     game.currentRound.playersDicesDrawByPlayerId[1].set(PerudoGame.DiceFace.Three, nbDicesByPlayer[1]);
     game.currentRound.playersDicesDrawByPlayerId[3].set(PerudoGame.DiceFace.Four, nbDicesByPlayer[3]);
 
-    game.increaseBid(2, PerudoGame.DiceFace.Two);
-    game.increaseBid(3, PerudoGame.DiceFace.Two);
+    game.bid(2, PerudoGame.DiceFace.Two);
+    game.bid(3, PerudoGame.DiceFace.Two);
     game.callBluff();
 
     expect(game.currentRound.nbDicesByPlayer[0])

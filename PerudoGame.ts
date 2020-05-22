@@ -274,7 +274,7 @@ export class Game {
 		return this._nbPlayersNotEliminated == 1;
 	}
 
-	public increaseBid(nbDices: number, diceFace: DiceFace) {
+	public bid(nbDices: number, diceFace: DiceFace) {
 		if (this.isOver) {
 			throw new Error(ErrorMessages.GAME_OVER);
 		}
@@ -282,18 +282,18 @@ export class Game {
 	}
 
 	public callBluff() {
-		this.callEndOfRoundMethod(() => this.currentRound.callBluff());
+		this.callEndOfRoundMethod(this.currentRound.callBluff);
 	}
 
 	public callExactMatch() {
-		this.callEndOfRoundMethod(() => this.currentRound.callExactMatch());
+		this.callEndOfRoundMethod(this.currentRound.callExactMatch);
 	}
 
 	private callEndOfRoundMethod(endOfRoundMethod: () => void) {
 		if (this.isOver) {
 			throw new Error(ErrorMessages.GAME_OVER);
 		}
-		endOfRoundMethod();
+		endOfRoundMethod.call(this.currentRound);
 		if(this.nbDicesByPlayerId[this.currentRound.endOfRound.impactedPlayerId] == 0){
 			this._nbPlayersNotEliminated--;
 		}

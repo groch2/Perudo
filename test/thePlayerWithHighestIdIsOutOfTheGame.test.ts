@@ -9,14 +9,14 @@ test('When there is n players, and the player with id (n - 2) plays, and the pla
     const game = new PerudoGame.Game(nbDicesByPlayer);
 
     for (let i = 1; i < nbDicesByPlayer.length - 1; i++) {
-        game.increaseBid(i, PerudoGame.DiceFace.Two);
+        game.bid(i, PerudoGame.DiceFace.Two);
 
         const expectedPlayerId = i;
         expect(game.nextPlayerId)
             .toBe(expectedPlayerId);
     }
 
-    game.increaseBid(PerudoGame.DiceFace.Two, nbDicesByPlayer.length - 1);
+    game.bid(PerudoGame.DiceFace.Two, nbDicesByPlayer.length - 1);
 
     expect(game.nextPlayerId)
         .toBe(0);

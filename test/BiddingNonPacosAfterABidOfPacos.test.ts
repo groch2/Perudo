@@ -5,9 +5,9 @@ test('When a player bids pacos, and the next players bids non pacos and bids twi
     const nbDicesByPlayerId = new Array(nbPlayers).fill(2);
     const game = new PerudoGame.Game(nbDicesByPlayerId);
 
-    game.increaseBid(1, PerudoGame.DiceFace.Two);
-    game.increaseBid(1, PerudoGame.DiceFace.Paco);
-    game.increaseBid(3, PerudoGame.DiceFace.Two);
+    game.bid(1, PerudoGame.DiceFace.Two);
+    game.bid(1, PerudoGame.DiceFace.Paco);
+    game.bid(3, PerudoGame.DiceFace.Two);
 
     expect(game.nextPlayerId)
         .toBe(0);
@@ -18,8 +18,8 @@ test('When a player bids pacos, and the next players bids non pacos and bids exa
     const nbDicesByPlayerId = new Array(nbPlayers).fill(2);
     const game = new PerudoGame.Game(nbDicesByPlayerId);
 
-    game.increaseBid(1, PerudoGame.DiceFace.Two);
-    game.increaseBid(1, PerudoGame.DiceFace.Paco);
-    expect(() => game.increaseBid(2, PerudoGame.DiceFace.Two))
+    game.bid(1, PerudoGame.DiceFace.Two);
+    game.bid(1, PerudoGame.DiceFace.Paco);
+    expect(() => game.bid(2, PerudoGame.DiceFace.Two))
         .toThrowError(PerudoGame.ErrorMessages.BIDDING_NON_PACOS_AFTER_A_BID_OF_PACOS);
 });

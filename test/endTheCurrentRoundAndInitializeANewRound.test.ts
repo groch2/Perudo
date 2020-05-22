@@ -11,7 +11,7 @@ test('If the current player call bluff, then the current round ends, and a new r
         expect(game.currentRoundNumber)
             .toBe(i);
 
-        game.increaseBid(1, PerudoGame.DiceFace.Two);
+        game.bid(1, PerudoGame.DiceFace.Two);
         game.callBluff();
     }
 
@@ -28,7 +28,7 @@ test('If the current player call exact match, then the current round ends, and a
         expect(game.currentRoundNumber)
             .toBe(i);
 
-        game.increaseBid(1, PerudoGame.DiceFace.Two);
+        game.bid(1, PerudoGame.DiceFace.Two);
         game.callExactMatch();
     }
 

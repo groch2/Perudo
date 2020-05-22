@@ -9,7 +9,7 @@ test('When there is only 2 players left, and the first player looses his last di
     game.currentRound.playersDicesDrawByPlayerId[0].set(PerudoGame.DiceFace.Two, 1);
     game.currentRound.playersDicesDrawByPlayerId[1].set(PerudoGame.DiceFace.Three, 1);
 
-    game.increaseBid(1, PerudoGame.DiceFace.Four);
+    game.bid(1, PerudoGame.DiceFace.Four);
     game.callBluff();
 
     expect(game.isOver)
@@ -20,7 +20,7 @@ test('When there is only one player with some dices left and the method to incre
     const nbDicesByPlayer = [1, 0];
     const game = new PerudoGame.Game(nbDicesByPlayer);
 
-    expect(() => game.increaseBid(1, PerudoGame.DiceFace.Four))
+    expect(() => game.bid(1, PerudoGame.DiceFace.Four))
         .toThrow(PerudoGame.ErrorMessages.GAME_OVER);
 });
 

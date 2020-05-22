@@ -11,7 +11,7 @@ test('Get turn number', () => {
         expect(game.currentRound.turnNumber)
             .toBe(i);
 
-        game.increaseBid(i + 1, PerudoGame.DiceFace.Two);
+        game.bid(i + 1, PerudoGame.DiceFace.Two);
     }
 
     expect(game.currentRound.turnNumber)
