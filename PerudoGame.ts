@@ -283,6 +283,8 @@ export class Game {
 			throw new Error(ErrorMessages.GAME_OVER);
 		}
 		this.currentRound.bid(nbDices, diceFace);
+		this._currentNbDicesBid = nbDices;
+		this._currentDiceFaceBid = diceFace;
 	}
 
 	public callBluff() {
@@ -343,6 +345,12 @@ export class Game {
 	public get nextPlayerDices() {
 		return this.currentRoundPlayersDicesDrawByPlayerId[this.nextPlayerId];
 	}
+
+	private _currentNbDicesBid: number | undefined = undefined;
+	public get currentNbDicesBid() { return this._currentNbDicesBid };
+
+	private _currentDiceFaceBid: DiceFace | undefined = undefined;
+	public get currentDiceFaceBid() { return this._currentDiceFaceBid };
 }
 
 export const diceFacesNames = (function () {
