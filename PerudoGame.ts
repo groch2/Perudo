@@ -50,8 +50,8 @@ export function getNextPlayerId(nbDicesByPlayerId: number[], fromPlayerId: numbe
 }
 
 class Round {
-	// if the first player of the round has only one dice left, then he or she is plafico and the pacos does not count has jokers during this round
-	// and he or she can start the round by bidding pacos
+	// If the first player of the round has only one dice left, then he or she is palafico which means that
+	// the pacos does not count has jokers during this round and he or she can start the round by bidding pacos.
 	public readonly isFirstPlayerPalafico: boolean;
 
 	constructor(
