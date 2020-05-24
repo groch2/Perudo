@@ -326,7 +326,7 @@ export class Game {
 	}
 
 	public get nbDicesOfOtherPlayersThanTheNextPlayer() {
-		return this.nbDicesByPlayerId.reduce((a, b) => a + b) - this.nbDicesByPlayerId[this.nextPlayerId];
+		return this._nbDices - this.nbDicesByPlayerId[this.nextPlayerId];
 	}
 
 	public get currentRoundPlayersDicesDrawByPlayerId() {
