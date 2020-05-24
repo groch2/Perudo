@@ -1,6 +1,5 @@
 import * as PerudoGame from "../PerudoGame";
 
-const nbPlayers = 2;
 PerudoGame.disableThrowingDices();
 
 test('When a player looses a dice and has more than one dice left, then he is not plafico.', () => {
@@ -15,7 +14,7 @@ test('When a player looses a dice and has more than one dice left, then he is no
     game.bid(4, PerudoGame.DiceFace.Two);
     game.callBluff();
 
-    expect(game.currentRound.isFirstPlayerOfCurrentRoundPlafico)
+    expect(game.currentRound.isFirstPlayerPalafico)
         .toBe(false);
 });
 
@@ -31,6 +30,6 @@ test('When a player looses a dice and has one dice left, then he is plafico.', (
     game.bid(4, PerudoGame.DiceFace.Two);
     game.callBluff();
 
-    expect(game.currentRound.isFirstPlayerOfCurrentRoundPlafico)
+    expect(game.currentRound.isFirstPlayerPalafico)
         .toBe(true);
 });

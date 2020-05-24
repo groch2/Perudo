@@ -52,7 +52,7 @@ export function getNextPlayerId(nbDicesByPlayerId: number[], fromPlayerId: numbe
 class Round {
 	// if the first player of the round has only one dice left, then he or she is plafico and the pacos does not count has jokers during this round
 	// and he or she can start the round by bidding pacos
-	public readonly isFirstPlayerOfCurrentRoundPlafico: boolean;
+	public readonly isFirstPlayerPalafico: boolean;
 
 	constructor(
 		public readonly nbPlayers: number,
@@ -61,7 +61,7 @@ class Round {
 		readonly firstPlayerId: number,
 		private _turns: Turn[] = new Array<Turn>(),
 		private _endOfRound: EndOfRound = null) {
-		this.isFirstPlayerOfCurrentRoundPlafico =
+		this.isFirstPlayerPalafico =
 			nbDicesByPlayer[firstPlayerId] === 1;
 		this._nextPlayerId = firstPlayerId;
 	}
@@ -83,6 +83,7 @@ class Round {
 		return this.isRoundBeginning ? null : this._turns[this._turns.length - 1];
 	}
 
+	// the next player makes a call based on an estimate of how many dice of a particular number there are under all the cups on the table.
 	public bid(nbDices: number, diceFace: DiceFace) {
 		const currentPlayerId = this._nextPlayerId;
 		this._nextPlayerId =
@@ -95,7 +96,7 @@ class Round {
 				throw new Error(errorMessage);
 			}
 		};
-		if (this.isFirstPlayerOfCurrentRoundPlafico) {
+		if (this.isFirstPlayerPalafico) {
 			if (!this.isRoundBeginning) {
 				throwErrorWithMessageIfBiddingIsNotIncreasedByDiceFaceValueXOrByDiceQuantity(
 					ErrorMessages.BIDDING_PACOS_IN_PLAFICO_ROUND_MUST_INCREASE_THE_PREVIOUS_BID_QUANTITY);
@@ -141,11 +142,12 @@ class Round {
 				nbDices));
 	}
 
+	// the next players states that the previous bid is above the actual count of the dices that are on the table
 	public callBluff() {
 		if (this.isRoundBeginning) {
 			throw Error(ErrorMessages.CALLING_BLUFF_OR_EXACT_MATCH_AT_THE_BEGINNING_OF_THE_ROUND);
 		}
-		const countPacosAsJoker = this.lastTurn.playerBidDiceFace !== DiceFace.Paco && !this.isFirstPlayerOfCurrentRoundPlafico;
+		const countPacosAsJoker = this.lastTurn.playerBidDiceFace !== DiceFace.Paco && !this.isFirstPlayerPalafico;
 		const nbDicesMatchingLastBid =
 			this.playersDicesDrawByPlayerId.reduce((diceTotal, playerDices) => {
 				return diceTotal + playerDices.get(this.lastTurn.playerBidDiceFace) + (countPacosAsJoker ? playerDices.get(DiceFace.Paco) : 0);
@@ -164,11 +166,12 @@ class Round {
 				RoundDiceOutcome.PlayerLostOneDice);
 	}
 
+	// the next players states that the previous bid exactly matches the actual count of the dices that are on the table
 	public callExactMatch() {
 		if (this.isRoundBeginning) {
 			throw Error(ErrorMessages.CALLING_BLUFF_OR_EXACT_MATCH_AT_THE_BEGINNING_OF_THE_ROUND);
 		}
-		const countPacosAsJoker = this.lastTurn.playerBidDiceFace !== DiceFace.Paco && !this.isFirstPlayerOfCurrentRoundPlafico;
+		const countPacosAsJoker = this.lastTurn.playerBidDiceFace !== DiceFace.Paco && !this.isFirstPlayerPalafico;
 		const nbDicesMatchingLastBid =
 			this.playersDicesDrawByPlayerId.reduce((diceTotal, playerDices) => {
 				return diceTotal + playerDices.get(this.lastTurn.playerBidDiceFace) + (countPacosAsJoker ? playerDices.get(DiceFace.Paco) : 0);
