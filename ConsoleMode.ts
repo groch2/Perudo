@@ -15,25 +15,37 @@ const rl =
         });
 
 class AskForBidOrEndOfRoundProcessor {
-    public readonly question = "Do you want to bid (1) or call for bluff or end of round (2) ?";
+    public readonly question = "Do you want to bid (1), call bluff (2) or end of round (3) ?";
     constructor(private game: PerudoGame.Game) { }
-    processChoice(choice: string): AskForBidOrEndOfRoundProcessor | AskForBidDiceFaceProcessor | AskForEndOfRoundProcessor {
+    processChoice(choice: string): AskForBidOrEndOfRoundProcessor | AskForBidDiceFaceProcessor {
         switch (choice) {
             case "1":
                 return new AskForBidDiceFaceProcessor(this.game);
             case "2":
-                return new AskForEndOfRoundProcessor(this.game);
-            default:
-                return this;
+                game.callBluff();
+                break;
+            case "3":
+                game.callExactMatch();
+                break;
         }
+        return this;
     }
 }
 
 class AskForBidDiceFaceProcessor {
-    // TODO: Do not allow the player to choose Paco if it is the beginning of a non plafico round
     // TODO: Get the last bid to give a clue to the player
-    public readonly question = "On which dice face to you want to bid ? (Paco: 1, Two: 2, Three: 3, Four: 4, Five: 5, Six: 6)";
-    constructor(private game: PerudoGame.Game) { }
+    public readonly question: string;
+    constructor(private game: PerudoGame.Game) {
+        let nextDiceFaceChoices: PerudoGame.DiceFace[] | string =
+            [...new Array(PerudoGame.diceFacesNames.length).keys()].slice(1);
+        console.log(JSON.stringify(this.game.currentRound));
+        if (this.game.currentRound.isFirstPlayerPalafico || this.game.currentRound.turnNumber > 0) {
+            nextDiceFaceChoices = nextDiceFaceChoices.slice(this.game.currentDiceFaceBid - 1)
+            nextDiceFaceChoices.unshift(PerudoGame.DiceFace.Paco);
+        }
+        nextDiceFaceChoices = nextDiceFaceChoices.map(df => `${PerudoGame.diceFacesNames[df]}: ${df + 1}`).join(", ");
+        this.question = `On which dice face to you want to bid ? (${nextDiceFaceChoices})`;
+    }
     processChoice(choice: string | number): AskForBidDiceQuantityProcessor | AskForBidOrEndOfRoundProcessor {
         choice = Number.parseInt(choice as string) - 1;
         if (choice >= 0 && choice < 6) {
@@ -58,24 +70,7 @@ class AskForBidDiceQuantityProcessor {
     }
 }
 
-class AskForEndOfRoundProcessor {
-    public readonly question = "Do you want to call bluff (1) or exact match (2) ?";
-    constructor(private game: PerudoGame.Game) { }
-    processChoice(choice: string): AskForBidDiceFaceProcessor {
-        switch (choice) {
-            case "1":
-                game.callBluff();
-                break;
-            case "2":
-                game.callExactMatch();
-                break;
-
-        }
-        return new AskForBidDiceFaceProcessor(this.game);
-    }
-}
-
-(function loop(processor: AskForBidOrEndOfRoundProcessor | AskForBidDiceFaceProcessor | AskForBidDiceQuantityProcessor | AskForEndOfRoundProcessor) {
+(function loop(processor: AskForBidOrEndOfRoundProcessor | AskForBidDiceFaceProcessor | AskForBidDiceQuantityProcessor) {
     const question =
         `round number: ${game.currentRoundNumber}
 player id: ${game.nextPlayerId}
