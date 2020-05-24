@@ -227,6 +227,7 @@ export class Game {
 	private _nbPlayers: number;
 	private _rounds: Round[];
 	private _nbPlayersNotEliminated: number;
+	private _nbDices: number;
 
 	public constructor(nbPlayersOrNbDicesByPlayer: number | number[]) {
 		let nbDicesByPlayer = nbPlayersOrNbDicesByPlayer as number[]
@@ -234,6 +235,8 @@ export class Game {
 			nbDicesByPlayer.length ?
 				nbDicesByPlayer :
 				new Array(nbPlayersOrNbDicesByPlayer as number).fill(nbStartingDicesByPlayer);
+
+		this._nbDices = nbDicesByPlayer.reduce((a, b) => a + b);
 
 		this._nbPlayers = nbDicesByPlayer.length;
 		this._nbPlayersNotEliminated = nbDicesByPlayer.filter(nbDices => nbDices > 0).length;
@@ -271,10 +274,6 @@ export class Game {
 		return this._rounds.length - 1;
 	}
 
-	public get nbPlayers() {
-		return this._nbPlayers;
-	}
-
 	public get isOver() {
 		return this._nbPlayersNotEliminated == 1;
 	}
@@ -299,6 +298,17 @@ export class Game {
 			throw new Error(ErrorMessages.GAME_OVER);
 		}
 		endOfRoundMethod.call(this.currentRound);
+		this._nbDices +=
+			(() => {
+				switch (this.currentRound.endOfRound.roundDiceOutcome) {
+					case RoundDiceOutcome.PlayerLostOneDice:
+						return -1;
+					case RoundDiceOutcome.PlayerRecoveredOneDice:
+						return +1;
+					default:
+						return 0;
+				}
+			})();
 		if (this.nbDicesByPlayerId[this.currentRound.endOfRound.impactedPlayerId] == 0) {
 			this._nbPlayersNotEliminated--;
 		}
@@ -324,7 +334,7 @@ export class Game {
 			this
 				.currentRound
 				.playersDicesDrawByPlayerId
-				.map(diceDraw => 
+				.map(diceDraw =>
 					[...diceDraw.entries()]
 						.filter(([, quantity]) => quantity > 0)
 						.map(([diceFace, diceQuantity]) => [diceFacesNames[diceFace], diceQuantity])));
