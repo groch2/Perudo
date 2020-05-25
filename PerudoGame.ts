@@ -347,10 +347,10 @@ export class Game {
 	}
 
 	private _currentNbDicesBid: number | undefined = undefined;
-	public get currentNbDicesBid() { return this._currentNbDicesBid };
+	public get currentBidNbDices() { return this._currentNbDicesBid };
 
 	private _currentDiceFaceBid: DiceFace | undefined = undefined;
-	public get currentDiceFaceBid() { return this._currentDiceFaceBid };
+	public get currentBidDiceFace() { return this._currentDiceFaceBid };
 }
 
 export const diceFacesNames = (function () {

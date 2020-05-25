@@ -15,8 +15,11 @@ const rl =
         });
 
 class AskForBidOrEndOfRoundProcessor {
-    public readonly question = "Do you want to bid (1), call bluff (2) or end of round (3) ?";
-    constructor(private game: PerudoGame.Game) { }
+    public readonly question: string;
+    constructor(private game: PerudoGame.Game) {
+        this.question = `The current bid is: ${game.currentBidNbDices} ${PerudoGame.diceFacesNames[game.currentBidDiceFace]};
+Do you want to bid (1), call bluff (2) or end of round (3) ?`;
+    }
     processChoice(choice: string): AskForBidOrEndOfRoundProcessor | AskForBidDiceFaceProcessor {
         switch (choice) {
             case "1":
@@ -33,14 +36,12 @@ class AskForBidOrEndOfRoundProcessor {
 }
 
 class AskForBidDiceFaceProcessor {
-    // TODO: Get the last bid to give a clue to the player
     public readonly question: string;
     constructor(private game: PerudoGame.Game) {
         let nextDiceFaceChoices: PerudoGame.DiceFace[] | string =
             [...new Array(PerudoGame.diceFacesNames.length).keys()].slice(1);
-        console.log(JSON.stringify(this.game.currentRound));
         if (this.game.currentRound.isFirstPlayerPalafico || this.game.currentRound.turnNumber > 0) {
-            nextDiceFaceChoices = nextDiceFaceChoices.slice(this.game.currentDiceFaceBid - 1)
+            nextDiceFaceChoices = nextDiceFaceChoices.slice(this.game.currentBidDiceFace - 1)
             nextDiceFaceChoices.unshift(PerudoGame.DiceFace.Paco);
         }
         nextDiceFaceChoices = nextDiceFaceChoices.map(df => `${PerudoGame.diceFacesNames[df]}: ${df + 1}`).join(", ");
@@ -57,7 +58,6 @@ class AskForBidDiceFaceProcessor {
 }
 
 class AskForBidDiceQuantityProcessor {
-    // TODO: Get the last bid to give a clue to the player
     public readonly question = `How many ${PerudoGame.DiceFace[this.diceFace]} do you want to bid ? (enter an integer numeric value)`;
     constructor(private game: PerudoGame.Game, private diceFace: number) { }
     processChoice(choice: string | number): AskForBidDiceQuantityProcessor | AskForBidOrEndOfRoundProcessor {
