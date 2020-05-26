@@ -71,19 +71,15 @@ class AskForDiceFaceProcessor {
 class AskForDiceQuantityProcessor {
     public readonly question = `How many ${PerudoGame.DiceFace[this.diceFace]} do you want to bid ? (enter an integer numeric value)`;
     constructor(private game: PerudoGame.Game, private diceFace: PerudoGame.DiceFace) { }
-    processChoice(choice: string | number): AskForDiceQuantityProcessor | AskForBidOrEndOfRoundProcessor | AskForDiceFaceProcessor {
-        // TODO: validate that the user input is correct (it must be an integer number less than the total number of dices that are still on the table)
-        // TODO: catch the error thrown by playerPlays if the bid is invalid
-        // TODO: return a new AskForBidOrEndOfRoundProcessor if the user input is incorrect, or if the bid is invalid (resest the turn to allow the current player to make another choice)
+    processChoice(choice: string): AskForDiceQuantityProcessor | AskForBidOrEndOfRoundProcessor | AskForDiceFaceProcessor {
         if (!/^\d+$/.test(choice as string)) {
             return new (
                 this.game.currentRound.isRoundBeginning ?
                     AskForDiceFaceProcessor :
                     AskForBidOrEndOfRoundProcessor)(this.game, false);
         }
-        console.debug({ playerBefore: this.game.nextPlayerId });
-        this.game.bid(choice as number, this.diceFace);
-        console.debug({ playerAfter: this.game.nextPlayerId });
+        // TODO: catch the error thrown by playerPlays if the bid is invalid
+        this.game.bid(Number.parseInt(choice), this.diceFace);
         return new AskForBidOrEndOfRoundProcessor(this.game);
     }
 }

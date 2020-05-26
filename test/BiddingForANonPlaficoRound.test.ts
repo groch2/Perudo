@@ -16,3 +16,22 @@ test('When first player is not plafico and starts by anything but pacos, then th
         game.bid(1, diceFace);
     }
 });
+
+test('Player bids and turn changes to next player', () => {
+    const nbDicesByPlayerId = [3, 3];
+    PerudoGame.disableThrowingDices();
+    const game = new PerudoGame.Game(nbDicesByPlayerId);
+    game.currentRound.playersDicesDrawByPlayerId[0].set(PerudoGame.DiceFace.Two, 3);
+    game.currentRound.playersDicesDrawByPlayerId[1].set(PerudoGame.DiceFace.Three, 3);
+
+    game.bid(3, PerudoGame.DiceFace.Two);
+
+    game.callBluff();
+    game.currentRound.playersDicesDrawByPlayerId[0].set(PerudoGame.DiceFace.Two, 3);
+    game.currentRound.playersDicesDrawByPlayerId[1].set(PerudoGame.DiceFace.Three, 2);
+
+    expect(game.nextPlayerId).toBe(1);
+
+    game.bid(3, PerudoGame.DiceFace.Two);
+    expect(game.nextPlayerId).toBe(0);
+});

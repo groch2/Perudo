@@ -87,8 +87,7 @@ class Round {
 	public bid(nbDices: number, diceFace: DiceFace) {
 		const currentPlayerId = this._nextPlayerId;
 		this._nextPlayerId =
-			!this.lastTurn ? 1 :
-				getNextPlayerId(this.nbDicesByPlayer, currentPlayerId + 1);
+			getNextPlayerId(this.nbDicesByPlayer, (currentPlayerId + 1) % this.nbPlayers);
 		const throwErrorWithMessageIfBiddingIsNotIncreasedByDiceFaceValueXOrByDiceQuantity = (errorMessage: string) => {
 			const diceFaceDiff = diceFace - this.lastTurn.playerBidDiceFace;
 			const diceQuantityDiff = nbDices - this.lastTurn.playerBidDiceQuantity;
@@ -256,8 +255,15 @@ export class Game {
 				.fill(0)
 				.map(playerId => getDrawByThrowingDices(nbDicesOfEachPlayerByPlayerId[playerId]));
 		const firstPlayerId =
-			getNextPlayerId(nbDicesOfEachPlayerByPlayerId, this.currentRound.endOfRound.impactedPlayerId);
-		const newRound = new Round(this._nbPlayers, nbDicesOfEachPlayerByPlayerId, playersDicesDrawByPlayerId, firstPlayerId);
+			getNextPlayerId(
+				nbDicesOfEachPlayerByPlayerId,
+				this.currentRound.endOfRound.impactedPlayerId);
+		const newRound =
+			new Round(
+				this._nbPlayers,
+				nbDicesOfEachPlayerByPlayerId,
+				playersDicesDrawByPlayerId,
+				firstPlayerId);
 		this._rounds.push(newRound);
 	}
 
