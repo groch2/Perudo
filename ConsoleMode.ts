@@ -21,21 +21,23 @@ class AskForBidOrEndOfRoundProcessor {
         this.question += this.game.currentRound.turnNumber > 0 ? `The current bid is: ${this.game.currentBidNbDices} ${PerudoGame.diceFacesNames[this.game.currentBidDiceFace]}\n` : "";
         this.question += `Do you want to bid (1), call bluff (2) or exact match (3) ?`;
     }
-    processChoice(choice: string | number): AskForBidOrEndOfRoundProcessor | AskForDiceFaceProcessor {
-        choice = Number.parseInt(choice as string);
+    processChoice(choice: string): AskForBidOrEndOfRoundProcessor | AskForDiceFaceProcessor {
+        if (!/^1|2|3$/.test(choice as string)) {
+            return new AskForBidOrEndOfRoundProcessor(this.game, false);
+        }
         switch (choice) {
-            case 1:
+            case "1":
                 return new AskForDiceFaceProcessor(this.game);
-            case 2:
+            case "2":
                 this.game.callBluff();
                 break;
-            case 3:
+            case "3":
                 this.game.callExactMatch();
                 break;
         }
         switch (choice) {
-            case 2:
-            case 3:
+            case "2":
+            case "3":
                 return new AskForDiceFaceProcessor(this.game);
         }
         return new AskForBidOrEndOfRoundProcessor(this.game, false);
@@ -56,10 +58,9 @@ class AskForDiceFaceProcessor {
         nextDiceFaceChoices = nextDiceFaceChoices.map(df => `${PerudoGame.diceFacesNames[df]}: ${df + 1}`).join(", ");
         this.question += `On which dice face to you want to bid ? (${nextDiceFaceChoices})`;
     }
-    processChoice(choice: string | number): AskForDiceQuantityProcessor | AskForBidOrEndOfRoundProcessor | AskForDiceFaceProcessor {
-        choice = Number.parseInt(choice as string) - 1;
-        if (choice >= 0 && choice < 6) {
-            return new AskForDiceQuantityProcessor(this.game, choice);
+    processChoice(choice: string): AskForDiceQuantityProcessor | AskForBidOrEndOfRoundProcessor | AskForDiceFaceProcessor {
+        if (/^[1-6]$/.test(choice)) {
+            return new AskForDiceQuantityProcessor(this.game, Number.parseInt(choice));
         }
         return new (
             this.game.currentRound.isRoundBeginning ?
@@ -72,15 +73,20 @@ class AskForDiceQuantityProcessor {
     public readonly question = `How many ${PerudoGame.DiceFace[this.diceFace]} do you want to bid ? (enter an integer numeric value)`;
     constructor(private game: PerudoGame.Game, private diceFace: PerudoGame.DiceFace) { }
     processChoice(choice: string): AskForDiceQuantityProcessor | AskForBidOrEndOfRoundProcessor | AskForDiceFaceProcessor {
-        if (!/^\d+$/.test(choice as string)) {
+        if (!/^\d+$/.test(choice)) {
             return new (
                 this.game.currentRound.isRoundBeginning ?
                     AskForDiceFaceProcessor :
                     AskForBidOrEndOfRoundProcessor)(this.game, false);
         }
-        // TODO: catch the error thrown by playerPlays if the bid is invalid
-        this.game.bid(Number.parseInt(choice), this.diceFace);
-        return new AskForBidOrEndOfRoundProcessor(this.game);
+        let isInputValid = true;
+        try {
+            this.game.bid(Number.parseInt(choice), this.diceFace);
+        }
+        catch {
+            isInputValid = false;
+        }
+        return new AskForBidOrEndOfRoundProcessor(this.game, isInputValid);
     }
 }
 
