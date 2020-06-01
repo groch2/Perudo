@@ -79,7 +79,7 @@ class AskForDiceFaceProcessor {
             choice = Number.parseInt(choice) - 1;
             if (choice > this.game.currentBidDiceFace) {
                 this.game.bid(this.game.currentBidNbDices, choice);
-                return new AskForDiceFaceProcessor(this.game);
+                return new AskForBidOrEndOfRoundProcessor(this.game);
             }
             return new AskForDiceQuantityProcessor(this.game, choice);
         }
