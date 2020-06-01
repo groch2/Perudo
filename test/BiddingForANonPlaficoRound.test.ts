@@ -6,6 +6,7 @@ test('When first player is not plafico and starts by bidding pacos, then there s
 
     expect(() => game.bid(1, PerudoGame.DiceFace.Paco))
         .toThrow(PerudoGame.ErrorMessages.START_NON_PLAFICO_ROUND_BY_BIDDING_PACOS);
+    expect(game.nextPlayerId).toBe(0);
 });
 
 test('When first player is not plafico and starts by anything but pacos, then there should be no error', () => {

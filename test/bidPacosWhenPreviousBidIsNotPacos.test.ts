@@ -40,4 +40,5 @@ test('When first player bids on a dice face other than paco, and then second pla
     game.bid(5, PerudoGame.DiceFace.Two);
     expect(() => game.bid(2, PerudoGame.DiceFace.Paco))
         .toThrow(PerudoGame.ErrorMessages.BID_PACO_AFTER_NON_PACO);
+    expect(game.nextPlayerId).toBe(1);
 });

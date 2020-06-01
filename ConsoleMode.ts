@@ -3,9 +3,16 @@ import * as PerudoGame from "./perudoGame";
 const nbPlayers = 2;
 const game = new PerudoGame.Game(nbPlayers);
 
-console.log("game start:");
-console.log("Nb dices of all players by player id:", game.nbDicesByPlayerId);
-console.log();
+const diceFacesSymbolsByDiceFaceName = (() => {
+    const diceFacesSymbols = "⚀⚁⚂⚃⚄⚅".split("");
+    return (
+        PerudoGame.diceFacesNames.reduce(
+            (dictionary, diceFace, index) => {
+                dictionary[diceFace] = diceFacesSymbols[index];
+                return dictionary;
+            },
+            {}));
+})();
 
 const rl =
     require('readline')
@@ -46,21 +53,29 @@ class AskForBidOrEndOfRoundProcessor {
 
 class AskForDiceFaceProcessor {
     public readonly question: string;
-    constructor(private game: PerudoGame.Game, readonly isPreviousChoiceValid: boolean = true) {
+    constructor(private game: PerudoGame.Game, readonly isPreviousChoiceValid: boolean = true, private readonly validInputExpression: RegExp = /^[1-6]$/) {
         this.question = `${isPreviousChoiceValid ? "" : "Your input is incorrect, please choose a valid option.\n"}`;
-        this.question += this.game.currentRound.turnNumber > 0 ? `The current bid is: ${this.game.currentBidNbDices} ${PerudoGame.diceFacesNames[this.game.currentBidDiceFace]}\n` : "";
+        if (this.game.currentRound.turnNumber > 0) {
+            this.question += `The current bid is: ${this.game.currentBidNbDices} ${PerudoGame.diceFacesNames[this.game.currentBidDiceFace]}\n`;
+            this.validInputExpression = new RegExp(`^[${this.game.currentBidDiceFace + 1}-6]$`);
+        }
         let nextDiceFaceChoices: PerudoGame.DiceFace[] | string =
             [...new Array(PerudoGame.diceFacesNames.length).keys()].slice(1);
         if (this.game.currentRound.isFirstPlayerPalafico || this.game.currentRound.turnNumber > 0) {
-            nextDiceFaceChoices = nextDiceFaceChoices.slice(this.game.currentBidDiceFace - 1)
+            if (this.game.currentBidDiceFace > 0) {
+                nextDiceFaceChoices = nextDiceFaceChoices.slice(this.game.currentBidDiceFace - 1);
+            }
             nextDiceFaceChoices.unshift(PerudoGame.DiceFace.Paco);
         }
-        nextDiceFaceChoices = nextDiceFaceChoices.map(df => `${PerudoGame.diceFacesNames[df]}: ${df + 1}`).join(", ");
+        nextDiceFaceChoices = nextDiceFaceChoices.map(df => `${diceFacesSymbolsByDiceFaceName[PerudoGame.diceFacesNames[df]]} : ${df + 1}`).join(", ");
         this.question += `On which dice face to you want to bid ? (${nextDiceFaceChoices})`;
+        if (this.game.currentRound.isRoundBeginning) {
+            this.validInputExpression = /^[2-6]$/;
+        }
     }
     processChoice(choice: string): AskForDiceQuantityProcessor | AskForBidOrEndOfRoundProcessor | AskForDiceFaceProcessor {
-        if (/^[1-6]$/.test(choice)) {
-            return new AskForDiceQuantityProcessor(this.game, Number.parseInt(choice));
+        if (this.validInputExpression.test(choice)) {
+            return new AskForDiceQuantityProcessor(this.game, Number.parseInt(choice) - 1);
         }
         return new (
             this.game.currentRound.isRoundBeginning ?
@@ -81,6 +96,7 @@ class AskForDiceQuantityProcessor {
         }
         let isInputValid = true;
         try {
+            console.debug({ diceQuantity: Number.parseInt(choice), diceFace: this.diceFace });
             this.game.bid(Number.parseInt(choice), this.diceFace);
         }
         catch {
@@ -91,13 +107,18 @@ class AskForDiceQuantityProcessor {
 }
 
 (function loop(processor: AskForBidOrEndOfRoundProcessor | AskForDiceFaceProcessor | AskForDiceQuantityProcessor) {
+    const nextPlayerDices =
+        game.nextPlayerDices
+            .map(([diceFace, diceQuantity]) =>
+                `${diceQuantity}${diceFacesSymbolsByDiceFaceName[diceFace]}`)
+            .join(" ");
     const question =
         `round number: ${game.currentRoundNumber}
 player id: ${game.nextPlayerId}
 nb dices of player: ${game.nbDicesOfNextPlayer}
-player dices detail: ${JSON.stringify(game.nextPlayerDices)}
+player dices detail: ${nextPlayerDices}
 total nb dices of all other players: ${game.nbDicesOfOtherPlayersThanTheNextPlayer}
-nb dices of all players by player id: ${JSON.stringify(game.nbDicesByPlayerId)} 
+nb dices of all players by player id: ${JSON.stringify(game.nbDicesByPlayerId)}
 turn number: ${game.currentRound.turnNumber}
 ${processor.question}\n`;
     rl.question(

@@ -85,9 +85,6 @@ class Round {
 
 	// the next player makes a call based on an estimate of how many dice of a particular number there are under all the cups on the table.
 	public bid(nbDices: number, diceFace: DiceFace) {
-		const currentPlayerId = this._nextPlayerId;
-		this._nextPlayerId =
-			getNextPlayerId(this.nbDicesByPlayer, (currentPlayerId + 1) % this.nbPlayers);
 		const throwErrorWithMessageIfBiddingIsNotIncreasedByDiceFaceValueXOrByDiceQuantity = (errorMessage: string) => {
 			const diceFaceDiff = diceFace - this.lastTurn.playerBidDiceFace;
 			const diceQuantityDiff = nbDices - this.lastTurn.playerBidDiceQuantity;
@@ -133,6 +130,9 @@ class Round {
 				}
 			}
 		}
+		const currentPlayerId = this._nextPlayerId;
+		this._nextPlayerId =
+			getNextPlayerId(this.nbDicesByPlayer, (currentPlayerId + 1) % this.nbPlayers);
 		this._turns.push(
 			new Turn(
 				this.isRoundBeginning ? 0 : this.lastTurn.turnId + 1,
