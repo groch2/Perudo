@@ -25,7 +25,7 @@ class AskForBidOrEndOfRoundProcessor {
     public readonly question: string;
     constructor(private game: PerudoGame.Game, readonly isPreviousChoiceValid: boolean = true) {
         this.question = `${isPreviousChoiceValid ? "" : "Your input is incorrect, please choose a valid option.\n"}`;
-        this.question += this.game.currentRound.turnNumber > 0 ? `The current bid is: ${this.game.currentBidNbDices} ${PerudoGame.diceFacesNames[this.game.currentBidDiceFace]}\n` : "";
+        this.question += this.game.currentRound.turnNumber > 0 ? `The current bid is: ${this.game.currentBidNbDices} ${diceFacesSymbolsByDiceFaceName[PerudoGame.diceFacesNames[this.game.currentBidDiceFace]]}\n` : "";
         this.question += `Do you want to bid (1), call bluff (2) or exact match (3) ?`;
     }
     processChoice(choice: string): AskForBidOrEndOfRoundProcessor | AskForDiceFaceProcessor {
@@ -56,7 +56,7 @@ class AskForDiceFaceProcessor {
     constructor(private game: PerudoGame.Game, readonly isPreviousChoiceValid: boolean = true, private readonly validInputExpression: RegExp = /^[1-6]$/) {
         this.question = `${isPreviousChoiceValid ? "" : "Your input is incorrect, please choose a valid option.\n"}`;
         if (this.game.currentRound.turnNumber > 0) {
-            this.question += `The current bid is: ${this.game.currentBidNbDices} ${PerudoGame.diceFacesNames[this.game.currentBidDiceFace]}\n`;
+            this.question += `The current bid is: ${this.game.currentBidNbDices} ${diceFacesSymbolsByDiceFaceName[PerudoGame.diceFacesNames[this.game.currentBidDiceFace]]}\n`;
             this.validInputExpression = new RegExp(`^[${this.game.currentBidDiceFace + 1}-6]$`);
         }
         let nextDiceFaceChoices: PerudoGame.DiceFace[] | string =
@@ -91,7 +91,7 @@ class AskForDiceFaceProcessor {
 }
 
 class AskForDiceQuantityProcessor {
-    public readonly question = `How many ${PerudoGame.DiceFace[this.diceFace]} do you want to bid ? (enter an integer numeric value)`;
+    public readonly question = `How many ${diceFacesSymbolsByDiceFaceName[PerudoGame.DiceFace[this.diceFace]]} do you want to bid ? (enter an integer numeric value)`;
     constructor(private game: PerudoGame.Game, private diceFace: PerudoGame.DiceFace) {
         if (this.game.currentRound.turnNumber > 0) {
             this.question += `\nyour bid must be greater than ${this.game.currentBidNbDices}`;
