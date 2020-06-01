@@ -73,9 +73,15 @@ class AskForDiceFaceProcessor {
             this.validInputExpression = /^[2-6]$/;
         }
     }
-    processChoice(choice: string): AskForDiceQuantityProcessor | AskForBidOrEndOfRoundProcessor | AskForDiceFaceProcessor {
+    processChoice(choice: string | number): AskForDiceQuantityProcessor | AskForBidOrEndOfRoundProcessor | AskForDiceFaceProcessor {
+        choice = choice as string;
         if (this.validInputExpression.test(choice)) {
-            return new AskForDiceQuantityProcessor(this.game, Number.parseInt(choice) - 1);
+            choice = Number.parseInt(choice) - 1;
+            if (choice > this.game.currentBidDiceFace) {
+                this.game.bid(this.game.currentBidNbDices, choice);
+                return new AskForDiceFaceProcessor(this.game);
+            }
+            return new AskForDiceQuantityProcessor(this.game, choice);
         }
         return new (
             this.game.currentRound.isRoundBeginning ?
@@ -86,7 +92,11 @@ class AskForDiceFaceProcessor {
 
 class AskForDiceQuantityProcessor {
     public readonly question = `How many ${PerudoGame.DiceFace[this.diceFace]} do you want to bid ? (enter an integer numeric value)`;
-    constructor(private game: PerudoGame.Game, private diceFace: PerudoGame.DiceFace) { }
+    constructor(private game: PerudoGame.Game, private diceFace: PerudoGame.DiceFace) {
+        if (this.game.currentRound.turnNumber > 0) {
+            this.question += `\nyour bid must be greater than ${this.game.currentBidNbDices}`;
+        }
+    }
     processChoice(choice: string): AskForDiceQuantityProcessor | AskForBidOrEndOfRoundProcessor | AskForDiceFaceProcessor {
         if (!/^\d+$/.test(choice)) {
             return new (
@@ -96,7 +106,6 @@ class AskForDiceQuantityProcessor {
         }
         let isInputValid = true;
         try {
-            console.debug({ diceQuantity: Number.parseInt(choice), diceFace: this.diceFace });
             this.game.bid(Number.parseInt(choice), this.diceFace);
         }
         catch {
