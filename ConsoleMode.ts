@@ -80,7 +80,7 @@ class AskForDiceFaceProcessor {
         choice = choice as string;
         if (this.validInputExpression.test(choice)) {
             choice = Number.parseInt(choice) - 1;
-            if (choice > this.game.currentBidDiceFace) {
+            if (!this.game.currentRound.isRoundBeginning && choice > this.game.currentBidDiceFace) {
                 return new ConfirmDiceQuantityProcessor(this.game, choice);
             }
             return new AskForDiceQuantityProcessor(this.game, choice);
@@ -150,7 +150,7 @@ ${processor.question}\n`;
         (answer: string) => {
             processor = processor.processChoice(answer);
             if (game.isOver) {
-                console.log('the game is over');
+                console.log(`the game is over, the winner is player ${game.nextPlayerId}`);
                 rl.close();
                 return;
             }
