@@ -70,7 +70,10 @@ class AskForDiceFaceProcessor {
         nextDiceFaceChoices = nextDiceFaceChoices.map(df => `${diceFacesSymbolsByDiceFaceName[PerudoGame.diceFacesNames[df]]} : ${df + 1}`).join(", ");
         this.question += `On which dice face to you want to bid ? (${nextDiceFaceChoices})`;
         if (this.game.currentRound.isRoundBeginning) {
-            this.validInputExpression = /^[2-6]$/;
+            this.validInputExpression =
+                this.game.currentRound.isFirstPlayerPalafico ?
+                    /^[1-6]$/ :
+                    /^[2-6]$/;
         }
     }
     processChoice(choice: string | number): AskForDiceQuantityProcessor | AskForBidOrEndOfRoundProcessor | AskForDiceFaceProcessor | ConfirmDiceQuantityProcessor {
