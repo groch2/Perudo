@@ -73,13 +73,12 @@ class AskForDiceFaceProcessor {
             this.validInputExpression = /^[2-6]$/;
         }
     }
-    processChoice(choice: string | number): AskForDiceQuantityProcessor | AskForBidOrEndOfRoundProcessor | AskForDiceFaceProcessor {
+    processChoice(choice: string | number): AskForDiceQuantityProcessor | AskForBidOrEndOfRoundProcessor | AskForDiceFaceProcessor | ConfirmDiceQuantityProcessor {
         choice = choice as string;
         if (this.validInputExpression.test(choice)) {
             choice = Number.parseInt(choice) - 1;
             if (choice > this.game.currentBidDiceFace) {
-                this.game.bid(this.game.currentBidNbDices, choice);
-                return new AskForBidOrEndOfRoundProcessor(this.game);
+                return new ConfirmDiceQuantityProcessor(this.game, choice);
             }
             return new AskForDiceQuantityProcessor(this.game, choice);
         }
@@ -90,6 +89,19 @@ class AskForDiceFaceProcessor {
     }
 }
 
+class ConfirmDiceQuantityProcessor {
+    public readonly question: string;
+    constructor(private game: PerudoGame.Game, private diceFace: PerudoGame.DiceFace) {
+        this.question = `Do you want to bid ${game.currentBidNbDices} ${diceFacesSymbolsByDiceFaceName[PerudoGame.DiceFace[diceFace]]} ? (y,Y : yes, n,N,... : no)`;
+    }
+    processChoice(choice: string): AskForDiceFaceProcessor | AskForBidOrEndOfRoundProcessor {
+        if (choice.toUpperCase() === "Y") {
+            this.game.bid(this.game.currentBidNbDices, this.diceFace);
+        }
+        return new AskForBidOrEndOfRoundProcessor(this.game);
+    }
+}
+
 class AskForDiceQuantityProcessor {
     public readonly question = `How many ${diceFacesSymbolsByDiceFaceName[PerudoGame.DiceFace[this.diceFace]]} do you want to bid ? (enter an integer numeric value)`;
     constructor(private game: PerudoGame.Game, private diceFace: PerudoGame.DiceFace) {
@@ -97,7 +109,7 @@ class AskForDiceQuantityProcessor {
             this.question += `\nyour bid must be greater than ${this.game.currentBidNbDices}`;
         }
     }
-    processChoice(choice: string): AskForDiceQuantityProcessor | AskForBidOrEndOfRoundProcessor | AskForDiceFaceProcessor {
+    processChoice(choice: string): AskForBidOrEndOfRoundProcessor | AskForDiceFaceProcessor {
         if (!/^\d+$/.test(choice)) {
             return new (
                 this.game.currentRound.isRoundBeginning ?
@@ -115,7 +127,7 @@ class AskForDiceQuantityProcessor {
     }
 }
 
-(function loop(processor: AskForBidOrEndOfRoundProcessor | AskForDiceFaceProcessor | AskForDiceQuantityProcessor) {
+(function loop(processor: AskForBidOrEndOfRoundProcessor | AskForDiceFaceProcessor | AskForDiceQuantityProcessor | ConfirmDiceQuantityProcessor) {
     const nextPlayerDices =
         game.nextPlayerDices
             .map(([diceFace, diceQuantity]) =>
