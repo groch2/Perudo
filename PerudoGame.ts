@@ -251,9 +251,8 @@ export class Game {
 	private initializeNewRound(): void {
 		const nbDicesOfEachPlayerByPlayerId = this.currentRound.nbDicesByPlayer.splice(0);
 		const playersDicesDrawByPlayerId =
-			new Array(this._nbPlayers)
-				.fill(0)
-				.map(playerId => getDrawByThrowingDices(nbDicesOfEachPlayerByPlayerId[playerId]));
+			nbDicesOfEachPlayerByPlayerId
+				.map(nbDices => getDrawByThrowingDices(nbDices));
 		const firstPlayerId =
 			getNextPlayerId(
 				nbDicesOfEachPlayerByPlayerId,
@@ -337,7 +336,7 @@ export class Game {
 		return this._nbDices - this.nbDicesByPlayerId[this.nextPlayerId];
 	}
 
-	public get currentRoundPlayersDicesDrawByPlayerId() {
+	private get currentRoundPlayersDicesDrawByPlayerId() {
 		return (
 			this
 				.currentRound
