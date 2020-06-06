@@ -85,7 +85,7 @@ export class AskForDiceFaceProcessor {
 export class ConfirmDiceQuantityProcessor {
     public readonly question: string;
     constructor(private game: PerudoGame.Game, private diceFace: PerudoGame.DiceFace) {
-        this.question = `Do you want to bid ${game.currentBidNbDices} ${diceFacesSymbolsByDiceFaceName[PerudoGame.DiceFace[diceFace]]} ? (y,Y : yes, n,N,... : no)`;
+        this.question = `Do you want to bid ${game.currentBidNbDices} ${diceFacesSymbolsByDiceFaceName[PerudoGame.DiceFace[diceFace]]} ? (Yes : y,Y | No : n,N,...)`;
     }
     processChoice(choice: string): AskForDiceFaceProcessor | AskForBidOrEndOfRoundProcessor {
         if (choice.toUpperCase() === "Y") {
