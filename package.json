@@ -11,7 +11,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/grroch/Perudo.git"
+    "url": "git+https://github.com/groch2/Perudo.git"
   },
   "keywords": [
     "Perudo",
@@ -22,14 +22,15 @@
   "author": "roch.deschaseaux@gmail.com",
   "license": "ISC",
   "bugs": {
-    "url": "https://github.com/grroch/Perudo/issues"
+    "url": "https://github.com/groch2/Perudo/issues"
   },
-  "homepage": "https://github.com/grroch/Perudo#readme",
+  "homepage": "https://github.com/groch2/Perudo#readme",
   "devDependencies": {
     "@babel/core": "^7.9.6",
     "@babel/plugin-proposal-class-properties": "^7.8.3",
     "@babel/preset-env": "^7.9.6",
     "@babel/preset-typescript": "^7.9.0",
+    "@types/node": "^14.0.14",
     "babel-jest": "^26.0.1",
     "jest": "^26.0.1"
   },
