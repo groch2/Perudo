@@ -1,25 +1,12 @@
 {
-    "compilerOptions": {
-        "target": "es5",
-        "downlevelIteration": true,
-        "lib": [
-            "es2015",
-            "es2017",
-            "dom",
-            "es2015.collection",
-            "es2015.iterable"
-        ],
-        "outDir": "out",
-        "sourceMap": true
-    },
-    "files": [
-        "perudoGame.ts",
-        "consoleMode.ts"
-    ],
-    "include": [
-        "test/*.ts"
-    ],
-    "exclude": [
-        "test/*.test.ts"
-    ]
+  "compilerOptions": {
+    "target": "es5",
+    "downlevelIteration": true,
+    "lib": ["es2015", "es2017", "dom", "es2015.collection", "es2015.iterable"],
+    "outDir": "out",
+    "sourceMap": true
+  },
+  "files": ["perudoGame.ts", "consoleMode.ts"],
+  "include": ["test/*.ts"],
+  "exclude": ["test/*.test.ts"]
 }
