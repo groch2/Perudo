@@ -327,8 +327,7 @@ export class Game {
     this._rounds.push(newRound);
   }
 
-  // TODO: make this getter private. It exposes a way to mutate the state of the game, and it should not.
-  public get currentRound() {
+  private get currentRound() {
     return this._rounds[this._rounds.length - 1];
   }
 
@@ -338,6 +337,18 @@ export class Game {
 
   public get currentRoundNumber() {
     return this._rounds.length - 1;
+  }
+
+  public get currentRoundTurnNumber() {
+    return this.currentRound.turnNumber;
+  }
+
+  public get isCurrentRoundFirstPlayerPalafico() {
+    return this.currentRound.isFirstPlayerPalafico;
+  }
+
+  public get isRoundBeginning() {
+    return this.currentRound.isRoundBeginning;
   }
 
   public get isOver() {

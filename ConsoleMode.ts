@@ -36,7 +36,7 @@ total nb dices of all other players: ${
     game.nbDicesOfOtherPlayersThanTheNextPlayer
   }
 nb dices of all players by player id: ${JSON.stringify(game.nbDicesByPlayerId)}
-turn number: ${game.currentRound.turnNumber}
+turn number: ${game.currentRoundTurnNumber}
 ${processor.question}\n`;
   rl.question(question, (answer: string) => {
     processor = processor.processChoice(answer);

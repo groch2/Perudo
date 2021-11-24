@@ -20,7 +20,7 @@ export class AskForBidOrEndOfRoundProcessor {
         : "Your input is incorrect, please choose a valid option.\n"
     }`;
     this.question +=
-      this.game.currentRound.turnNumber > 0
+      this.game.currentRoundTurnNumber > 0
         ? `The current bid is: ${this.game.currentBidNbDices} ${
             diceFacesSymbolsByDiceFaceName[
               PerudoGame.diceFacesNames[this.game.currentBidDiceFace]
@@ -66,7 +66,7 @@ export class AskForDiceFaceProcessor {
         ? ""
         : "Your input is incorrect, please choose a valid option.\n"
     }`;
-    if (this.game.currentRound.turnNumber > 0) {
+    if (this.game.currentRoundTurnNumber > 0) {
       this.question += `The current bid is: ${this.game.currentBidNbDices} ${
         diceFacesSymbolsByDiceFaceName[
           PerudoGame.diceFacesNames[this.game.currentBidDiceFace]
@@ -80,8 +80,8 @@ export class AskForDiceFaceProcessor {
       ...new Array(PerudoGame.diceFacesNames.length).keys(),
     ].slice(1);
     if (
-      this.game.currentRound.isFirstPlayerPalafico ||
-      this.game.currentRound.turnNumber > 0
+      this.game.isCurrentRoundFirstPlayerPalafico ||
+      this.game.currentRoundTurnNumber > 0
     ) {
       if (this.game.currentBidDiceFace > 0) {
         nextDiceFaceChoices = nextDiceFaceChoices.slice(
@@ -99,8 +99,8 @@ export class AskForDiceFaceProcessor {
       )
       .join(", ");
     this.question += `On which dice face to you want to bid ? (${nextDiceFaceChoices})`;
-    if (this.game.currentRound.isRoundBeginning) {
-      this.validInputExpression = this.game.currentRound.isFirstPlayerPalafico
+    if (this.game.isRoundBeginning) {
+      this.validInputExpression = this.game.isCurrentRoundFirstPlayerPalafico
         ? /^[1-6]$/
         : /^[2-6]$/;
     }
@@ -116,7 +116,7 @@ export class AskForDiceFaceProcessor {
     if (this.validInputExpression.test(choice)) {
       choice = Number.parseInt(choice) - 1;
       if (
-        !this.game.currentRound.isRoundBeginning &&
+        !this.game.isRoundBeginning &&
         choice > this.game.currentBidDiceFace
       ) {
         return new ConfirmDiceQuantityProcessor(this.game, choice);
@@ -124,7 +124,7 @@ export class AskForDiceFaceProcessor {
       return new AskForDiceQuantityProcessor(this.game, choice);
     }
     return new (
-      this.game.currentRound.isRoundBeginning
+      this.game.isRoundBeginning
         ? AskForDiceFaceProcessor
         : AskForBidOrEndOfRoundProcessor
     )(this.game, false);
@@ -159,7 +159,7 @@ export class AskForDiceQuantityProcessor {
     private game: PerudoGame.Game,
     private diceFace: PerudoGame.DiceFace
   ) {
-    if (this.game.currentRound.turnNumber > 0) {
+    if (this.game.currentRoundTurnNumber > 0) {
       this.question += `\nyour bid must be greater than ${this.game.currentBidNbDices}`;
     }
   }
@@ -168,7 +168,7 @@ export class AskForDiceQuantityProcessor {
   ): AskForBidOrEndOfRoundProcessor | AskForDiceFaceProcessor {
     if (!/^\d+$/.test(choice)) {
       return new (
-        this.game.currentRound.isRoundBeginning
+        this.game.isRoundBeginning
           ? AskForDiceFaceProcessor
           : AskForBidOrEndOfRoundProcessor
       )(this.game, false);
