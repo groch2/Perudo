@@ -113,41 +113,18 @@ export class AskForDiceFaceProcessor {
     | AskForDiceFaceProcessor
     | ConfirmDiceQuantityProcessor {
     choice = choice as string;
-    if (this.validInputExpression.test(choice)) {
-      choice = Number.parseInt(choice) - 1;
-      if (
-        !this.game.isRoundBeginning &&
-        choice > this.game.currentBidDiceFace
-      ) {
-        return new ConfirmDiceQuantityProcessor(this.game, choice);
-      }
-      return new AskForDiceQuantityProcessor(this.game, choice);
+    if (!this.validInputExpression.test(choice)) {
+      return new (
+        this.game.isRoundBeginning
+          ? AskForDiceFaceProcessor
+          : AskForBidOrEndOfRoundProcessor
+      )(this.game, false);
     }
-    return new (
-      this.game.isRoundBeginning
-        ? AskForDiceFaceProcessor
-        : AskForBidOrEndOfRoundProcessor
-    )(this.game, false);
-  }
-}
-
-export class ConfirmDiceQuantityProcessor {
-  public readonly question: string;
-  constructor(
-    private game: PerudoGame.Game,
-    private diceFace: PerudoGame.DiceFace
-  ) {
-    this.question = `Do you want to bid ${game.currentBidNbDices} ${
-      diceFacesSymbolsByDiceFaceName[PerudoGame.DiceFace[diceFace]]
-    } ? (Yes : y,Y | No : n,N,...)`;
-  }
-  processChoice(
-    choice: string
-  ): AskForDiceFaceProcessor | AskForBidOrEndOfRoundProcessor {
-    if (choice.toUpperCase() === "Y") {
-      this.game.bid(this.game.currentBidNbDices, this.diceFace);
+    choice = Number.parseInt(choice) - 1;
+    if (!this.game.isRoundBeginning && choice > this.game.currentBidDiceFace) {
+      return new ConfirmDiceQuantityProcessor(this.game, choice);
     }
-    return new AskForBidOrEndOfRoundProcessor(this.game);
+    return new AskForDiceQuantityProcessor(this.game, choice);
   }
 }
 
@@ -180,5 +157,25 @@ export class AskForDiceQuantityProcessor {
       isInputValid = false;
     }
     return new AskForBidOrEndOfRoundProcessor(this.game, isInputValid);
+  }
+}
+
+export class ConfirmDiceQuantityProcessor {
+  public readonly question: string;
+  constructor(
+    private game: PerudoGame.Game,
+    private diceFace: PerudoGame.DiceFace
+  ) {
+    this.question = `Do you want to bid ${game.currentBidNbDices} ${
+      diceFacesSymbolsByDiceFaceName[PerudoGame.DiceFace[diceFace]]
+    } ? (Yes : y,Y | No : n,N,...)`;
+  }
+  processChoice(
+    choice: string
+  ): AskForDiceFaceProcessor | AskForBidOrEndOfRoundProcessor {
+    if (choice.toUpperCase() === "Y") {
+      this.game.bid(this.game.currentBidNbDices, this.diceFace);
+    }
+    return new AskForBidOrEndOfRoundProcessor(this.game);
   }
 }
