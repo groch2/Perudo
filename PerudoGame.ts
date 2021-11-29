@@ -388,7 +388,7 @@ export class Game {
       }
     })();
     if (
-      this.nbDicesByPlayerId[this.currentRound.endOfRound.impactedPlayerId] == 0
+      this.currentRound.nbDicesByPlayer[this.currentRound.endOfRound.impactedPlayerId] == 0
     ) {
       this._nbPlayersNotEliminated--;
     }
@@ -398,15 +398,15 @@ export class Game {
   }
 
   public get nbDicesByPlayerId() {
-    return this.currentRound.nbDicesByPlayer.slice(0);
+    return [...this.currentRound.nbDicesByPlayer];
   }
 
   public get nbDicesOfNextPlayer() {
-    return this.nbDicesByPlayerId[this.nextPlayerId];
+    return this.currentRound.nbDicesByPlayer[this.nextPlayerId];
   }
 
   public get nbDicesOfOtherPlayersThanTheNextPlayer() {
-    return this._nbDices - this.nbDicesByPlayerId[this.nextPlayerId];
+    return this._nbDices - this.currentRound.nbDicesByPlayer[this.nextPlayerId];
   }
 
   private get currentRoundPlayersDicesDrawByPlayerId() {
